@@ -1,0 +1,8 @@
+# Eksempel: lokal kjøring med miljøvariabler fra .env (ikke committet)
+services:
+  app:
+    build: .
+    environment:
+      APP_ENV: development
+    # env_file:
+    #   - .env   # aktiver når du har .env lokalt
