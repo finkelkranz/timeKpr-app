@@ -1,11 +1,18 @@
-"""Tester for konfigurasjon."""
+"""Tests for configuration and settings."""
 
-from mal_prosjekt.config import get_app_env, get_optional_secret
+from __future__ import annotations
 
-
-def test_get_app_env_default() -> None:
-    assert get_app_env() == "development"
+from timekpr_app.config import get_app_env, get_settings
 
 
-def test_get_optional_secret_missing() -> None:
-    assert get_optional_secret("NONEXISTENT_SECRET_XYZ") is None
+def test_get_app_env() -> None:
+    """Test that app environment is readable."""
+    env = get_app_env()
+    assert env in ["development", "production"]
+
+
+def test_get_settings() -> None:
+    """Test that settings can be loaded."""
+    settings = get_settings()
+    assert settings.app_title == "timekpr App"
+    assert settings.app_version == "0.1.0"

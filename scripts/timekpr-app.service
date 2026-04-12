@@ -1,0 +1,18 @@
+[Unit]
+Description=timekpr-app web interface
+After=network.target timekpr.service
+Requires=timekpr.service
+
+[Service]
+Type=simple
+User=timekpr-app
+Group=timekpr-app
+WorkingDirectory=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app
+Environment=PATH=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.venv/bin
+EnvironmentFile=-/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.env
+ExecStart=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.venv/bin/timekpr-app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

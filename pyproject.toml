@@ -3,27 +3,37 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mal-prosjekt"
+name = "timekpr-app"
 version = "0.1.0"
-description = "Mal for nye prosjekter — bytt navn og beskrivelse når du kopierer."
+description = "Web-app for å administrere timekpr-skjermtidskontroll på delt Linux-maskin"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-authors = [{ name = "Ditt navn" }]
+authors = [{ name = "Torgeir" }]
 dependencies = [
     "python-dotenv>=1.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "dbus-python>=1.2.0",
+    "pyjwt>=2.8.0",
+    "bcrypt>=4.0.0",
+    "python-multipart>=0.0.5",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
     "pytest-cov>=4.0",
+    "pytest-asyncio>=0.23.0",
     "ruff>=0.6",
     "mypy>=1.8",
+    "httpx>=0.26.0",
 ]
 
 [project.scripts]
-mal-demo = "mal_prosjekt.cli:main"
+timekpr-app = "timekpr_app.api.main:cli"
 
 [tool.ruff]
 line-length = 100
@@ -37,11 +47,11 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 
 [tool.coverage.run]
-source = ["src/mal_prosjekt"]
+source = ["src/timekpr_app"]
 branch = true
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
 mypy_path = "src"
-packages = ["mal_prosjekt"]
+packages = ["timekpr_app"]

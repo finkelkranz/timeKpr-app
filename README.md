@@ -29,28 +29,39 @@ Uten Git er det fortsatt bare filer i en mappe; med Git og eventuelt GitHub blir
 | Kjøring i sky / server | [Dockerfile](Dockerfile) og [docker-compose.yml](docker-compose.yml) som eksempel |
 | Før commit (valgfritt) | `pre-commit` kan kjøre sjekker automatisk |
 
-## Kom i gang (kort)
+## Kom i gang
 
-1. **Python**: Installer [Python 3.11+](https://www.python.org/downloads/). På Windows: velg gjerne «Add to PATH» i installasjonen.
-2. **Virtuelt miljø og installasjon** (én gang per maskin — eller kjør **`scripts\setup-dev.ps1`** / `scripts/setup-dev.sh` som gjør dette for deg):
+### 1. Backend (Python/FastAPI)
 
-   ```powershell
-   cd Mal-prosjekt
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   pip install -e ".[dev]"
-   ```
+```bash
+# Opprett virtuelt miljø
+python3 -m venv .venv
+source .venv/bin/activate
 
-   På Linux/macOS: `source .venv/bin/activate` i stedet for `Activate.ps1`.
+# Installer avhengigheter
+pip install fastapi uvicorn pydantic pydantic-settings python-dotenv pyjwt bcrypt python-multipart
 
-3. **Sjekk at alt fungerer** (etter `pip install`):
+# Installer system-avhengigheter for D-Bus
+sudo apt update && sudo apt install -y libdbus-1-dev pkg-config
+pip install dbus-python
 
-   ```text
-   pytest
-   mal-demo --version
-   ```
+# Kjør serveren
+./run-server.sh
+```
 
-   Eller kjør hele sjekken: `scripts\check.ps1` (Windows) eller `scripts/check.sh` (Unix).
+Serveren starter på `http://localhost:8000` med API-dokumentasjon på `http://localhost:8000/docs`.
+
+### 2. Frontend (React/Vite)
+
+```bash
+# Kjør frontend
+./run-frontend.sh
+# Eller manuelt:
+cd frontend
+npm run dev
+```
+
+Frontend kjører på `http://localhost:5173` og proxyer API-kall til backend.
 
 4. **Git:** Når Git er installert, kjør `scripts\init-git.ps1` eller følg [docs/BEGINNER.md](docs/BEGINNER.md).
 
