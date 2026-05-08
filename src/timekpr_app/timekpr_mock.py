@@ -84,6 +84,7 @@ class MockTimekprDBusInterface:
             "LIMIT_PER_WEEK": user_data["weekly_limit"],
             "LIMIT_PER_MONTH": user_data["monthly_limit"],
             "ALLOWED_DAYS": user_data["allowed_days"],
+            "ALLOWED_HOURS": user_data["allowed_hours"],
             "TRACK_INACTIVE": user_data["track_inactive"],
             "HIDE_TRAY_ICON": user_data["hide_tray_icon"],
             "LOCKOUT_TYPE": user_data["lockout_type"],

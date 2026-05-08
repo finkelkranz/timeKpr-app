@@ -23,16 +23,55 @@ async def get_user_config(
         interface = get_timekpr_interface()
         config = interface.get_user_config(username)
         
+        # Parse limits from config with defaults
+        daily_limit = config.get("LIMITS_PER_WEEKDAYS", config.get("LIMIT_PER_WEEKDAY", 14400))
+        weekly_limit = config.get("LIMIT_PER_WEEK", 100800)
+        monthly_limit = config.get("LIMIT_PER_MONTH", 504000)
+        
+        # Handle dbus array types - extract first element if array
+        if isinstance(daily_limit, (list, tuple)) and daily_limit:
+            daily_limit = daily_limit[0]
+        if isinstance(weekly_limit, (list, tuple)) and weekly_limit:
+            weekly_limit = weekly_limit[0]
+        if isinstance(monthly_limit, (list, tuple)) and monthly_limit:
+            monthly_limit = monthly_limit[0]
+        
+        # Parse allowed days (1-7)
+        allowed_weekdays = config.get("ALLOWED_DAYS", [1, 2, 3, 4, 5])
+        if isinstance(allowed_weekdays, (list, tuple)):
+            allowed_weekdays = list(allowed_weekdays)
+        
+        # Parse allowed hours per day - flatten all hours from all days
+        # Config may have ALLOWED_HOURS as dict {day: [hours]} or list
+        allowed_hours_raw = config.get("ALLOWED_HOURS", {})
+        if isinstance(allowed_hours_raw, dict):
+            # Extract all unique hours across all days
+            all_hours = set()
+            for day_hours in allowed_hours_raw.values():
+                if isinstance(day_hours, (list, tuple)):
+                    all_hours.update(day_hours)
+            allowed_hours = sorted(all_hours)
+        elif isinstance(allowed_hours_raw, (list, tuple)):
+            allowed_hours = sorted(set(allowed_hours_raw))
+        else:
+            allowed_hours = list(range(0, 24))
+        
+        # Parse boolean/tracking settings
+        track_inactive = config.get("TRACK_INACTIVE", False)
+        hide_tray_icon = config.get("HIDE_TRAY_ICON", False)
+        lockout_type = config.get("LOCKOUT_TYPE", "terminate")
+        
+        # Convert to proper types
         return UserConfig(
             username=username,
-            daily_limit=86400,  # TODO: parse from config
-            weekly_limit=604800,
-            monthly_limit=2678400,
-            allowed_hours=list(range(0, 24)),
-            allowed_weekdays=[1, 2, 3, 4, 5, 6, 7],
-            track_inactive=False,
-            hide_tray_icon=False,
-            lockout_type="terminate",
+            daily_limit=int(daily_limit),
+            weekly_limit=int(weekly_limit),
+            monthly_limit=int(monthly_limit),
+            allowed_hours=allowed_hours,
+            allowed_weekdays=allowed_weekdays,
+            track_inactive=bool(track_inactive) if track_inactive else False,
+            hide_tray_icon=bool(hide_tray_icon) if hide_tray_icon else False,
+            lockout_type=str(lockout_type),
         )
     except Exception as e:
         logger.error(f"Failed to get config for {username}: {e}")

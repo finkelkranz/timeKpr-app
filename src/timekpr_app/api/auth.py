@@ -30,5 +30,6 @@ async def login(request: LoginRequest) -> TokenResponse:
     token = create_access_token(subject="admin")
     return TokenResponse(
         access_token=token,
+        token_type="bearer",
         expires_in=settings.jwt_expire_minutes * 60,
     )

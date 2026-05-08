@@ -52,6 +52,8 @@ class TimekprTester:
         self.limits_interface = None
         self.use_mock = use_mock
         self.mock_interface = None
+        self.read_only = False  # Will be set via command line
+        self.target_user = None  # Will be set via command line
         
         if use_mock:
             try:
@@ -115,7 +117,11 @@ class TimekprTester:
                 for username in users:
                     print(f"    → User: '{username}'")
                 if users:
-                    self.test_username = users[0]
+                    # Use target_user if specified, otherwise first user
+                    if self.target_user and self.target_user in users:
+                        self.test_username = self.target_user
+                    else:
+                        self.test_username = users[0]
                     self.print_test(
                         "User selection",
                         "PASS",
@@ -161,7 +167,11 @@ class TimekprTester:
                     print(f"    → User {i + 1}: '{username}' (display: '{displayname}')")
 
                 if users:
-                    self.test_username = users[0]  # Use first user for further tests
+                    # Use target_user if specified, otherwise first user
+                    if self.target_user and self.target_user in users:
+                        self.test_username = self.target_user
+                    else:
+                        self.test_username = users[0]  # Use first user for further tests
                     self.print_test(
                         "User parsing",
                         "PASS",
@@ -636,14 +646,20 @@ class TimekprTester:
         if not self.test_connection():
             return False
 
+        # Read tests - always run
         self.test_get_user_list()
         self.test_get_user_config()
         self.test_request_time_left()
-        self.test_set_time_left()
-        self.test_set_allowed_hours_buggy()
-        self.test_set_allowed_days()
-        self.test_fixed_set_allowed_hours()
-        self.test_fixed_set_limits_per_weekday()
+
+        # Write tests - skip if read_only mode
+        if not self.read_only:
+            self.test_set_time_left()
+            self.test_set_allowed_hours_buggy()
+            self.test_set_allowed_days()
+            self.test_fixed_set_allowed_hours()
+            self.test_fixed_set_limits_per_weekday()
+        else:
+            print("\n  📖 Skipping write tests (read-only mode)\n")
 
         self.print_summary()
 
@@ -654,13 +670,17 @@ class TimekprTester:
 if __name__ == "__main__":
     # Parse command line arguments
     use_mock = True  # Default to safe mock mode
+    read_only = False  # Default to read+write tests
+    target_user = None  # Default to first user found
     
-    if "--real" in sys.argv:
+    args = sys.argv[1:]
+    
+    if "--real" in args:
         use_mock = False
         print("⚠️  WARNING: Using REAL D-Bus interface")
         print("⚠️  This will MODIFY timekpr settings on your system")
         print("⚠️  Make sure you understand what you're testing!\n")
-    elif "--mock" in sys.argv:
+    elif "--mock" in args:
         use_mock = True
         print("✓ Using MOCK interface (safe for testing)\n")
     else:
@@ -669,6 +689,18 @@ if __name__ == "__main__":
         print("   Use --real flag for real D-Bus testing (requires sudo)\n")
         use_mock = True
     
+    if "--read-only" in args or "--readonly" in args:
+        read_only = True
+        print("📖 READ-ONLY mode: Will only run read tests (no write operations)\n")
+    
+    # Check for specific user
+    user_args = [a for a in args if not a.startswith("--")]
+    if user_args:
+        target_user = user_args[0]
+        print(f"👤 Target user: '{target_user}'\n")
+    
     tester = TimekprTester(use_mock=use_mock)
+    tester.read_only = read_only
+    tester.target_user = target_user
     success = tester.run()
     sys.exit(0 if success else 1)

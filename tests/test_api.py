@@ -27,7 +27,7 @@ def test_root_endpoint(test_app: TestClient) -> None:
 
 def test_health_check(test_app: TestClient) -> None:
     """Test health check endpoint."""
-    response = test_app.get("/health")
+    response = test_app.get("/api/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
@@ -38,7 +38,7 @@ def test_health_check(test_app: TestClient) -> None:
 def test_login_with_wrong_password(test_app: TestClient) -> None:
     """Test login fails with wrong password."""
     response = test_app.post(
-        "/auth/login",
+        "/api/auth/login",
         json={"password": "wrongpassword"},
     )
     assert response.status_code == 401
@@ -47,7 +47,7 @@ def test_login_with_wrong_password(test_app: TestClient) -> None:
 def test_login_with_default_password(test_app: TestClient) -> None:
     """Test login succeeds with default password 'admin'."""
     response = test_app.post(
-        "/auth/login",
+        "/api/auth/login",
         json={"password": "admin"},
     )
     # This will only work if ADMIN_PASSWORD_HASH env var is set to default hash
