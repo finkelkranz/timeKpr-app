@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import Login from './components/Login'
-import Dashboard from './components/Dashboard'
+import Dashboard from './components/Dashboard.tsx'
 import './App.css'
+
+// Configure axios to use backend URL
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8000' : 'http://localhost:8000'
+axios.defaults.baseURL = API_BASE_URL
 
 interface User {
   username: string

@@ -47,11 +47,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(health.router)
-app.include_router(auth.router)
-app.include_router(stats.router)
-app.include_router(config.router)
+# Include routers with /api prefix
+app.include_router(health.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(stats.router, prefix="/api")
+app.include_router(config.router, prefix="/api")
 
 
 @app.get("/", tags=["info"])

@@ -34,7 +34,7 @@ interface User {
 interface DashboardProps {
   users: User[]
   onLogout: () => void
-  onUpdateTime: (username: string, seconds: number) => void
+  onUpdateTime: (username: string, seconds: number) => Promise<void>
   error: string | null
 }
 
@@ -186,10 +186,10 @@ function Dashboard({ users, onLogout, onUpdateTime, error }: DashboardProps) {
                       className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
                     />
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         const seconds = parseInt(newTime)
                         if (!isNaN(seconds)) {
-                          onUpdateTime(selectedUser.username, seconds)
+                          await onUpdateTime(selectedUser.username, seconds)
                           setNewTime('')
                         }
                       }}

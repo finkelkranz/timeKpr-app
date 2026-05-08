@@ -39,14 +39,21 @@ async def get_user_stats(username: str, admin: str = Depends(verify_admin)) -> U
         time_left = interface.get_time_left(username)
         config = interface.get_user_config(username)
         
-        # Parse config to extract limits
-        daily_limit = config.get("LIMITS_PER_WEEKDAYS", [86400] * 7)
-        weekly_limit = config.get("LIMIT_PER_WEEK", 604800)
-        monthly_limit = config.get("LIMIT_PER_MONTH", 2678400)
+        # Parse config to extract limits - use defaults if empty
+        # Default: 4 hours/day, 28 hours/week, 140 hours/month
+        if config:
+            daily_limit = config.get("LIMITS_PER_WEEKDAYS", 14400)
+            weekly_limit = config.get("LIMIT_PER_WEEK", 100800)
+            monthly_limit = config.get("LIMIT_PER_MONTH", 504000)
+        else:
+            # Mock defaults for testing
+            daily_limit = 14400      # 4 hours
+            weekly_limit = 100800    # 28 hours
+            monthly_limit = 504000   # 140 hours
         
         # Handle dbus array conversion
         if isinstance(daily_limit, (list, tuple)):
-            daily_limit = daily_limit[0] if daily_limit else 86400
+            daily_limit = daily_limit[0] if daily_limit else 14400
         else:
             daily_limit = int(daily_limit)
         
