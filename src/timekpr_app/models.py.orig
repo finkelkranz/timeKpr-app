@@ -19,13 +19,6 @@ class TokenResponse(BaseModel):
     expires_in: int
 
 
-class AddTimeRequest(BaseModel):
-    """Request model for adding time to a user."""
-
-    seconds: int = Field(..., gt=0, description="Number of seconds to add")
-    period: str = Field(default="day", description="Time period: day, week, or month")
-
-
 class UserStats(BaseModel):
     """User screen time statistics."""
 

@@ -22,7 +22,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # Database file location
-DB_DIR = Path("~/timekpr-app-data").expanduser()
+DB_DIR = Path("/var/lib/timekpr-app-data")
 DB_FILE = DB_DIR / "stats.db"
 
 

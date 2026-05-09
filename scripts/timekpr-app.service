@@ -5,12 +5,13 @@ Requires=timekpr.service
 
 [Service]
 Type=simple
-User=timekpr-app
-Group=timekpr-app
+User=root
+Group=root
 WorkingDirectory=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app
-Environment=PATH=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.venv/bin
+Environment=PATH=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONPATH=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/src
 EnvironmentFile=-/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.env
-ExecStart=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.venv/bin/timekpr-app
+ExecStart=/home/torgeir/prosjekter/timeKpr-app/timeKpr-app/.venv/bin/python -m timekpr_app.api.main
 Restart=always
 RestartSec=5
 

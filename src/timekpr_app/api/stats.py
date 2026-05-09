@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from timekpr_app.auth import verify_admin
-from timekpr_app.models import UserStats
+from timekpr_app.models import AddTimeRequest, UserStats
 from timekpr_app.timekpr import get_timekpr_interface
 from timekpr_app.timekpr_file import get_all_users_data, get_user_data, add_time_to_user
 
@@ -152,8 +152,7 @@ async def get_user_stats(username: str, admin: str = Depends(verify_admin)) -> U
 @router.post("/users/{username}/add-time")
 async def add_time_to_user_endpoint(
     username: str,
-    seconds: int,
-    period: str = "day",
+    request: AddTimeRequest,
     admin: str = Depends(verify_admin),
 ) -> dict[str, Any]:
     """Add time to a user's remaining time.
@@ -175,13 +174,13 @@ async def add_time_to_user_endpoint(
         
         Adds 1 hour to Agnes's remaining daily time.
     """
-    if period not in ("day", "week", "month"):
+    if request.period not in ("day", "week", "month"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Period must be 'day', 'week', or 'month'",
         )
     
-    if seconds <= 0:
+    if request.seconds <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Seconds must be a positive number",
@@ -192,28 +191,28 @@ async def add_time_to_user_endpoint(
         user_data = get_user_data(username)
         
         # Add the time via D-Bus
-        success = add_time_to_user(username, seconds, period)
+        success = add_time_to_user(username, request.seconds, request.period)
         
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to add {seconds}s to {username}'s {period} time",
+                detail=f"Failed to add {request.seconds}s to {username}'s {request.period} time",
             )
         
         # Get updated state
         user_data_after = get_user_data(username)
         
         # Return success with time info
-        remaining_key = f"remaining_{period}"
+        remaining_key = f"remaining_{request.period}"
         remaining_before = getattr(user_data, remaining_key, 0) if user_data else 0
-        remaining_after = getattr(user_data_after, remaining_key, 0) if user_data_after else remaining_before + seconds
+        remaining_after = getattr(user_data_after, remaining_key, 0) if user_data_after else remaining_before + request.seconds
         
         return {
             "status": "ok",
-            "message": f"Added {seconds}s to {username}'s {period} time",
+            "message": f"Added {request.seconds}s to {username}'s {request.period} time",
             "user": username,
-            "period": period,
-            "seconds_added": seconds,
+            "period": request.period,
+            "seconds_added": request.seconds,
             "remaining_before": remaining_before,
             "remaining_after": remaining_after,
         }

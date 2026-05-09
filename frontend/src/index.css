@@ -2,16 +2,142 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Custom CSS Variables for theme */
+@layer base {
+  :root {
+    /* Background colors */
+    --bg-primary: 249 250 251; /* gray-50 */
+    --bg-secondary: 255 255 255; /* white */
+    --bg-tertiary: 243 244 246; /* gray-100 */
+    
+    /* Text colors */
+    --text-primary: 17 24 39; /* gray-900 */
+    --text-secondary: 55 65 81; /* gray-700 */
+    --text-muted: 107 114 128; /* gray-500 */
+    
+    /* Border colors */
+    --border-primary: 209 213 219; /* gray-300 */
+    --border-secondary: 243 244 246; /* gray-200 */
+    
+    /* Primary brand color */
+    --primary: 59 130 246; /* blue-600 */
+  }
+  
+  .dark {
+    /* Background colors - dark */
+    --bg-primary: 17 24 39; /* gray-900 */
+    --bg-secondary: 31 41 55; /* gray-800 */
+    --bg-tertiary: 55 65 81; /* gray-700 */
+    
+    /* Text colors - dark */
+    --text-primary: 249 250 251; /* gray-50 */
+    --text-secondary: 209 213 219; /* gray-300 */
+    --text-muted: 156 163 175; /* gray-400 */
+    
+    /* Border colors - dark */
+    --border-primary: 75 85 99; /* gray-600 */
+    --border-secondary: 55 65 81; /* gray-700 */
+    
+    /* Primary brand color - dark (lighter for better visibility) */
+    --primary: 96 165 250; /* blue-400 */
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Apply color-scheme for dark mode */
+.dark {
+  color-scheme: dark;
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Disable transitions on page load to prevent flash */
+.no-transitions * {
+  transition: none !important;
+}
+
+/* Base styles for all devices */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent double-tap zoom on mobile */
+input[type="number"],
+input[type="password"],
+button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Better focus styles for mobile */
+input:focus,
+button:focus {
+  outline: none;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent overscroll bounce on iOS */
+body {
+  overscroll-behavior: none;
+}
+
+/* Touch-friendly active states */
+button:active,
+a:active {
+  transform: scale(0.98);
+}
+
+/* Fix for iOS Safari viewport issue */
+@supports (-webkit-touch-callout: none) {
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.dark ::selection {
+  background: rgba(96, 165, 250, 0.3);
 }
