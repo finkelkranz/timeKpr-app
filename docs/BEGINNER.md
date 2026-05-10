@@ -1,87 +1,98 @@
-# For deg som har enkel kode-bakgrunn, men ikke Python/Git fra før
+# For deg som har enkel kode-bakgrunn
 
-Denne teksten er skrevet for deg som kjenner litt grunnleggende programmering, men som tenker å vibe-kode deg videre.
+Denne teksten er skrevet for deg som kjenner litt grunnleggende programmering, men som tenker å bruke dette prosjektet.
 
-## Hva er dette prosjektet?
+## Hva er timekpr-app?
 
-- **Kildekode** ligger i en mappe, som i gamle dager — bare at strukturen er litt mer ryddig (`src/` for programkode, `tests/` for tester).
-- **Python** er et språk som minner om det du kjenner: du skriver tekstfiler, og en **tolk** kjører dem (litt som at PHP kjøres av en server, men her kjører du ofte alt på din egen maskin). Du trenger ikke kompilere som i C/Java for å få noe som fungerer.
-- **Git** er et program som lagrer **versjoner** av filene dine: hvem som endret hva, og når. Det er som «angre»-historikk for hele prosjektet, og det gjør det trygt å prøve seg frem.
-- **GitHub** (eller annen tjeneste) er et **lagringssted på nett** for Git-repoet ditt. Da kan du hente prosjektet på en annen maskin, eller dele med andre.
-
-**Kort sagt:** Python er språket, Git er historikk, GitHub (valgfritt) er kopien på nett.
+Dette er en **web-app** for å administrere [timekpr](https://launchpad.net/timekpr) skjermtidskontroll på delt Linux-maskin. Den lar administratorer:
+- Se brukerstatistikk (gjenværende tid, forbruk)
+- Endre tid for brukere
+- Konfigurer timekpr-innstillinger
+- Se historisk data
 
 ## Hva du trenger å installere
 
-1. **Python 3.11 eller nyere** — fra [python.org](https://www.python.org/downloads/). På Windows: husk å krysse av for «Add Python to PATH» hvis installasjonen spør om det.
-2. **Git** — fra [git-scm.com](https://git-scm.com/download/win) (Windows). Det gir deg kommandoen `git` i et terminalvindu.
-3. (Valgfritt) **Cursor** eller **VSCode** — editor med støtte for Python og Git.
+1. **Python 3.11 eller nyere** — fra [python.org](https://www.python.org/downloads/). På Windows: husk å krysse av for «Add Python to PATH».
+2. **Git** — fra [git-scm.com](https://git-scm.com/download/win) (Windows). Gir kommandoen `git` i terminal.
+3. **Node.js 18+** — for frontend (React/Vite). Fra [nodejs.org](https://nodejs.org/).
+4. (Valgfritt) **Cursor** eller **VSCode** — editor med støtte for Python og Git.
 
-## Første gang: gjør mappen til et Git-repo
+## Første gang: klone prosjektet
 
-Når Git er installert, åpne en terminal **i prosjektmappen** (`Mal-prosjekt`) og kjør:
+Når Git er installert, åpne en terminal og kjør:
 
-```text
-git init
-git add .
-git commit -m "Første versjon av mal-prosjekt"
+```bash
+git clone https://github.com/Torgeir/timekpr-app.git
+cd timekpr-app
 ```
 
-Da har du et **lokalt Git-repo** — historikk lagres i en skjult mappe som heter `.git` (ikke rør den manuelt).
+## Oppsett av utviklingsmiljø
 
-**Enklere:** på Windows kan du kjøre `scripts\init-git.ps1` (høyreklikk → Kjør med PowerShell, eller åpne PowerShell i mappen og skriv `.\scripts\init-git.ps1`).
+```bash
+# Opprett virtuelt Python-miljø
+python3 -m venv .venv
 
-## Legge prosjektet på GitHub (slik at andre kan klone det)
+# Aktiver miljøet (Linux/macOS)
+source .venv/bin/activate
 
-1. Opprett en **nytt tomt repo** på [github.com](https://github.com) (uten README, uten .gitignore — du har allerede filer lokalt).
-2. GitHub viser deg kommandoer; typisk ser det slik ut (bytt `DITT-BRUKERNAVN` og `REPO-NAVN`):
+# Aktiver miljøet (Windows)
+.\.venv\Scripts\activate
 
-   ```text
-   git remote add origin https://github.com/DITT-BRUKERNAVN/REPO-NAVN.git
-   git branch -M main
-   git push -u origin main
-   ```
-
-3. **Andre** kan nå laste ned hele prosjektet med:
-
-   ```text
-   git clone https://github.com/DITT-BRUKERNAVN/REPO-NAVN.git
-   ```
-
-Da er det **samme mal** som du har, bare hentet fra nettet.
-
-## Når du merger på GitHub (Dependabot, andre PR-er)
-
-Det som skjer på GitHub (merge, Dependabot som oppdaterer pakker) **oppdaterer ikke automatisk** filene på PC-en din. Du må hente dem:
-
-```text
-git pull
-```
-
-Hvis `pyproject.toml` ble endret (nye versjoner av biblioteker), kjør etterpå med aktivt virtuelt miljø:
-
-```text
+# Installer avhengigheter
 pip install -e ".[dev]"
+
+# Kopier eksempeleksett
+cp .env.example .env
+# Rediger .env med dine innstillinger
 ```
 
-Mer om dette: [ARBEIDSFLYT.md](ARBEIDSFLYT.md) (seksjon om synk med GitHub).
+## Kjør applikasjonen
 
-## Kjøre eksempel-koden på din maskin
+### Backend (server)
 
-Se hovedfilen [README.md](../README.md) — seksjonen «Kom i gang» (Python-miljø, `pip install`, `pytest`).
+```bash
+./run-server.sh
+```
 
-## Ordliste (kort)
+Serveren starter på `http://localhost:8000`. API-dokumentasjon finner du på `http://localhost:8000/docs`.
 
-| Ord | Betydning |
-|-----|--------|
-| **Repo** | Hele prosjektmappen med Git-historikk |
-| **Commit** | Et «lagringspunkt» i historikken med en melding |
-| **Clone** | Kopiere et repo fra nett (eller annen disk) |
-| **Push** | Sende dine commits til GitHub |
-| **Pull** | Hente endringer fra GitHub |
+### Frontend (web-grensesnitt)
 
-## Mer detaljer
+```bash
+./run-frontend.sh
+```
 
-- [NY-PROSJEKT-FRA-MAL.md](NY-PROSJEKT-FRA-MAL.md) — helt nytt prosjekt fra malen (annen maskin, GitHub template)
-- [ARBEIDSFLYT.md](ARBEIDSFLYT.md) — flere Git-kontoer, Cursor, VSCode
-- [ARKITEKTUR.md](ARKITEKTUR.md) — hvordan mapper henger sammen
+Frontend kjører på `http://localhost:5173`.
+
+## Grunnleggende Git-kommander
+
+| Komando | Beskrivelse |
+|---------|-------------|
+| `git status` | Se hvilke filer som er endret |
+| `git add <fil>` | Legg til fil for commit |
+| `git add .` | Legg til alle endrede filer |
+| `git commit -m "melding"` | Lagre endringer lokalt |
+| `git push` | Send endringer til GitHub |
+| `git pull` | Hent endringer fra GitHub |
+| `git log --oneline` | Se commit-historikk |
+
+## Kjør tester
+
+```bash
+# Alle tester
+pytest
+
+# Med dekning (coverage)
+pytest --cov=timekpr_app --cov-report=term-missing
+
+# Enkle sjekker (lint + type + test)
+./scripts/check.sh
+```
+
+## Nyttig å vite
+
+- **Kildekode** ligger i `src/timekpr_app/`
+- **Tester** ligger i `tests/`
+- **Frontend** ligger i `frontend/`
+- **Dokumentasjon** ligger i `docs/`
+- **`.env`** filen er i `.gitignore` — aldri commit den!

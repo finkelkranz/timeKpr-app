@@ -1,33 +1,60 @@
-# Mal-prosjekt
+# timekpr-app
 
-Et **startpunkt** for egne prosjekter: du kopierer eller kloner mappen, legger inn din egen kode, og beholder verktøy for testing og sikkerhet.
+En **web-app** for å administrere [timekpr](https://launchpad.net/timekpr) skjermtidskontroll på delt Linux-maskin. Lar administratorer se brukerstatistikk, endre tid og konfigurere innstillinger via en nettside.
 
-**Er du ny på Python eller Git?** Les [docs/BEGINNER.md](docs/BEGINNER.md) først — den forklarer dette i enklere språk og sammenligner med det du kanskje kjenner fra C, Java og PHP.
+## Funksjonalitet
 
-**Skal du lage et helt nytt prosjekt fra malen** (ny maskin, ny jobb-PC, to måneder senere)? Les [docs/NY-PROSJEKT-FRA-MAL.md](docs/NY-PROSJEKT-FRA-MAL.md) — der står klon/template, **automatisert navnebytte** (`scripts/new-from-mal`) og sjekklisten «minste mulig manuelt».
+- **Administrator-panel**: Login med JWT-token for å administrere alle brukere
+- **Brukeroversikt**: Se alle konfigurerte timekpr-brukere
+- **Tidsstatistikk**: Se gjenværende tid (dag, uke, måned) og forbruk
+- **Tidsadministrasjon**: Legg til ekstra tid for brukere
+- **Konfigurasjon**: Endre tidgrenser, tillatte dager og timer
+- **Historisk data**: SQLite-database lagrer historisk statistikk
+- **D-Bus integrasjon**: Direkte kommunikasjon med timekprd
+- **Fil-basert lesing**: Pålitelig lesing av timekpr-data fra filer (fallback)
 
-## Git-repo: ja — slik gjør du
+## Arkitektur
 
-Kildekoden er **laget for å ligge i et vanlig Git-repository** (versjonskontroll), slik at du kan ta sikkerhetskopi, jobbe på flere maskiner og dele med andre.
+```
+Backend (Python/FastAPI)
+├── src/timekpr_app/
+│   ├── api/              # FastAPI endpoints
+│   │   ├── main.py       # App setup, lifespan
+│   │   ├── auth.py       # JWT authentication
+│   │   ├── health.py     # Health check
+│   │   ├── stats.py      # User statistics
+│   │   ├── config.py     # User configuration
+│   │   └── stats_history.py # Historical data
+│   ├── auth.py           # Password hashing
+│   ├── config.py         # Settings from env vars
+│   ├── models.py         # Pydantic models
+│   ├── timekpr.py        # D-Bus interface to timekprd
+│   ├── timekpr_file.py   # File-based reader
+│   ├── timekpr_db.py     # SQLite database
+│   └── timekpr_mock.py   # Mock interface for testing
+│
+Frontend (React/Vite)
+├── frontend/
+│   ├── src/              # React components
+│   └── public/           # Static assets
+│
+Database
+└── /var/lib/timekpr-app-data/stats.db  # SQLite history
+```
 
-- **Første gang på din maskin:** installer [Git](https://git-scm.com/downloads), stå i denne mappen og kjør `scripts\init-git.ps1` (Windows) eller `scripts/init-git.sh` (Linux/macOS). Da opprettes et lokalt repo med første commit.
-- **På GitHub:** opprett et nytt repo og følg [docs/BEGINNER.md](docs/BEGINNER.md) for å koble `git push`. Da kan **andre** hente alt med `git clone` — det er den vanlige måten å gjøre et eksempel-prosjekt «tilgjengelig som git-repo» på.
+## Forutsetninger
 
-Uten Git er det fortsatt bare filer i en mappe; med Git og eventuelt GitHub blir det et **offisielt** eksempel andre kan kopiere likt hver gang.
+- Python 3.11+
+- Node.js 18+ (for frontend)
+- timekpr installert og konfigurerte brukere
+- D-Bus system bus (timekprd kjører som system service)
+- **Root-tilgang** (for å lese timekpr-filer)
 
-## Hva som følger med
+### Systemavhengigheter (Debian/Ubuntu)
 
-| Område | Innhold (enkelt forklart) |
-|--------|---------------------------|
-| Kode | Python 3.11+, programfiler i `src/`, liten demo-kommando `mal-demo` |
-| Tester | Automatiske sjekker som kjører når du kjører `pytest` |
-| Kodekvalitet | Verktøyene `ruff` og `mypy` finner skrivefeil og uvaner i koden |
-| Hemmeligheter | Passord og nøkler hører ikke inn i Git — se [docs/HEMMELIGHETER.md](docs/HEMMELIGHETER.md) |
-| CI | Når du bruker GitHub: tester kjører automatisk når du pusher (se `.github/workflows/`) |
-| Sikkerhet | Planlagte sjekker av biblioteker og lekkasjer — [docs/SIKKERHET.md](docs/SIKKERHET.md) |
-| Oppdateringer | Forslag til nyere biblioteker (Dependabot); etter merge på GitHub: `git pull` lokalt — [docs/ARBEIDSFLYT.md](docs/ARBEIDSFLYT.md) |
-| Kjøring i sky / server | [Dockerfile](Dockerfile) og [docker-compose.yml](docker-compose.yml) som eksempel |
-| Før commit (valgfritt) | `pre-commit` kan kjøre sjekker automatisk |
+```bash
+sudo apt update && sudo apt install -y libdbus-1-dev pkg-config
+```
 
 ## Kom i gang
 
@@ -36,17 +63,20 @@ Uten Git er det fortsatt bare filer i en mappe; med Git og eventuelt GitHub blir
 ```bash
 # Opprett virtuelt miljø
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate  # Linux/macOS
+# .\.venv\Scripts\activate  # Windows
 
 # Installer avhengigheter
-pip install fastapi uvicorn pydantic pydantic-settings python-dotenv pyjwt bcrypt python-multipart
+pip install -e ".[dev]"
 
-# Installer system-avhengigheter for D-Bus
-sudo apt update && sudo apt install -y libdbus-1-dev pkg-config
-pip install dbus-python
+# Kopier eksempeleksett .env
+cp .env.example .env
+# Rediger .env og sett JWT_SECRET og ADMIN_PASSWORD_HASH
 
 # Kjør serveren
 ./run-server.sh
+# Eller manuelt:
+uvicorn timekpr_app.api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Serveren starter på `http://localhost:8000` med API-dokumentasjon på `http://localhost:8000/docs`.
@@ -54,32 +84,93 @@ Serveren starter på `http://localhost:8000` med API-dokumentasjon på `http://l
 ### 2. Frontend (React/Vite)
 
 ```bash
-# Kjør frontend
 ./run-frontend.sh
 # Eller manuelt:
 cd frontend
+npm install
 npm run dev
 ```
 
 Frontend kjører på `http://localhost:5173` og proxyer API-kall til backend.
 
-4. **Git:** Når Git er installert, kjør `scripts\init-git.ps1` eller følg [docs/BEGINNER.md](docs/BEGINNER.md).
+### 3. CLI-verktøy
 
-5. **Eget prosjekt fra malen:** Se [docs/NY-PROSJEKT-FRA-MAL.md](docs/NY-PROSJEKT-FRA-MAL.md). Kort: klon eller bruk GitHub **Use this template**, kjør `scripts\new-from-mal.ps1` (eller `python scripts/new_from_mal.py ...`) for å bytte `mal-prosjekt` til dine navn, deretter `setup-dev` og `check`.
+Hjelpeverktøy for debugging og administrasjon:
 
-## Dokumentasjon
+```bash
+# Les timekpr-data (krever sudo)
+sudo python3 read_timekpr_data.py
+sudo python3 read_timekpr_data.py torgeir  # Spesifikk bruker
 
-| Fil | Tema |
-|-----|------|
-| [docs/NY-PROSJEKT-FRA-MAL.md](docs/NY-PROSJEKT-FRA-MAL.md) | **Nytt prosjekt fra scratch**, ny maskin, GitHub template |
-| [docs/BEGINNER.md](docs/BEGINNER.md) | **Start her** om du er ny på Python/Git |
-| [docs/ARKITEKTUR.md](docs/ARKITEKTUR.md) | Mapper og hvordan du utvider |
-| [docs/HEMMELIGHETER.md](docs/HEMMELIGHETER.md) | Hemmeligheter uten å sjekke inn passord |
-| [docs/ARBEIDSFLYT.md](docs/ARBEIDSFLYT.md) | Git, Cursor, VSCode, flere maskiner |
-| [docs/CI-OG-TESTER.md](docs/CI-OG-TESTER.md) | Automatiske tester og GitHub Actions |
-| [docs/SIKKERHET.md](docs/SIKKERHET.md) | Sikkerhetsskanning |
-| [docs/SYNK-MAL.md](docs/SYNK-MAL.md) | Flytte forbedringer tilbake til malen |
-| [AGENTS.md](AGENTS.md) | Retningslinjer for AI-hjelp i Cursor |
+# Debug D-Bus-kommunikasjon
+sudo python3 debug_dbus.py
+
+# Fiks brukerens tid (krever sudo)
+sudo python3 fix_timekpr_time.py
+sudo python3 fix_timekpr_time.py torgeir --reset 7200  # Sett 2 timer for torgeir
+```
+
+## Miljøvariabler
+
+| Variabel | Beskrivelse | Standardverdi |
+|----------|-------------|---------------|
+| `APP_ENV` | Miljø (development/production) | `development` |
+| `HOST` | Server host | `::` |
+| `PORT` | Server port | `8000` |
+| `JWT_SECRET` | JWT hemmelighet | `dev-secret-change-in-prod!` |
+| `JWT_EXPIRE_MINUTES` | JWT utløpstid (minutter) | `1440` (24 timer) |
+| `ADMIN_PASSWORD_HASH` | BCrypt-hash av admin-passord | Hash av `"admin"` |
+
+### Generer nytt admin-passord
+
+```bash
+python3 -c "from timekpr_app.auth import hash_password; print(hash_password('mitt_nye_passord'))"
+```
+
+## Testing
+
+### Enhetstester
+
+```bash
+pytest
+pytest --cov=timekpr_app --cov-report=term-missing
+```
+
+### Linting og type-sjekk
+
+```bash
+ruff check src tests
+ruff format --check src tests
+mypy src/timekpr_app
+```
+
+### Full sjekk (skript)
+
+```bash
+./scripts/check.sh  # Linux/macOS
+# scripts\check.ps1  # Windows
+```
+
+## Docker (valgfritt)
+
+```bash
+# Bygg og kjør
+docker-compose up --build
+
+# Eller manuelt
+docker build -t timekpr-app .
+docker run -p 8000:8000 --env-file .env timekpr-app
+```
+
+**Merk**: Docker krever root-tilgang for å lese timekpr-filer. Konfigurer volum-mount for `/var/lib/timekpr/`.
+
+## Sikkerhet
+
+- **Kjør som root**: Appen trenger root for å lese timekpr-filer under `/var/lib/timekpr/`
+- **JWT-tokens**: Bruk sterkt `JWT_SECRET` i produksjon
+- **Admin-passord**: Endre `ADMIN_PASSWORD_HASH` fra standardverdien
+- **HTTPS**: Bruk reverse proxy (nginx, Caddy) med HTTPS i produksjon
+- **CORS**: Konfigurer `CORS_ORIGINS` for produksjonsdomener
 
 ## Lisens
 

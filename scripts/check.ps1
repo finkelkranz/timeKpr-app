@@ -8,6 +8,6 @@ if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
 
 python -m ruff check src tests
 python -m ruff format --check src tests
-python -m mypy src/mal_prosjekt
+python -m mypy src/timekpr_app
 python -m pytest -q
 Write-Host "OK: ruff, mypy, pytest"

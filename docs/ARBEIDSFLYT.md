@@ -1,5 +1,44 @@
 # Arbeidsflyt: Git, Cursor, VSCode, CLI
 
+## Git-grunnlag
+
+### Første gang med prosjektet
+
+```bash
+# Klon prosjektet
+git clone https://github.com/Torgeir/timekpr-app.git
+cd timekpr-app
+
+# Oppsett virtuelt miljø
+python3 -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .\.venv\Scripts\activate  # Windows
+
+# Installer avhengigheter
+pip install -e ".[dev]"
+
+# Kopier eksempeleksett
+cp .env.example .env
+```
+
+### Daglig arbeid
+
+```bash
+# Se status
+ git status
+
+# Legg til endringer
+git add -p  # Interaktivt
+# eller
+git add .   # Alle endringer
+
+# Commit med god melding
+git commit -m "beskrivende melding"
+
+# Push til GitHub
+git push
+```
+
 ## Flere Git-kontoer eller remotes
 
 - **Én konto, én remote**: Vanlig `git remote add origin <url>`.
@@ -8,14 +47,15 @@
 
 ## Cursor
 
-- Åpne prosjektmappen i Cursor på Windows, Linux eller macOS — samme filer som i VSCode.
-- Cursor Web: synkroniser repo via GitHub/GitLab slik plattformen krever; hemmeligheter skal ikke ligge i repoet.
+- Åpne prosjektmappen i Cursor på Windows, Linux eller macOS.
 - `AGENTS.md` gir kontekst til AI-funksjoner i dette repoet.
 
-## VSCode med Mistral, GitHub Copilot eller annet
+## VSCode med utvidelser
 
-- Installer utvidelser som vanlig; dette repoet er vanlig Python/tekst uten spesielle krav.
-- Kopier `.vscode/settings.json.example` til `.vscode/settings.json` og tilpass Python-sti (Linux/macOS: ofte `.venv/bin/python`).
+- Installer Python-utvidelse og Pytest-utvidelse.
+- Kopier `.vscode/settings.json.example` til `.vscode/settings.json` og tilpass Python-sti:
+  - Linux/macOS: `"python.pythonPath": ".venv/bin/python"`
+  - Windows: `"python.pythonPath": ".venv\Scripts\python.exe"`
 
 ## Ren CLI
 
@@ -24,7 +64,6 @@ git status
 git add -p
 git commit -m "beskrivende melding"
 git push
-pip install -e ".[dev]"
 pytest
 ```
 
@@ -38,14 +77,14 @@ Da er **GitHub** oppdatert, men mappen din er det ikke før du henter endringene
 git pull
 ```
 
-Hvis merge endret **avhengigheter** (`pyproject.toml` eller tilsvarende), oppdater det virtuelle miljøet etterpå:
+Hvis merge endret **avhengigheter** (`pyproject.toml`), oppdater det virtuelle miljøet etterpå:
 
 ```text
 pip install -e ".[dev]"
 ```
 
-Kjør gjerne `pytest` etter større hopp i biblioteker. Konflikter mellom det du har lokalt og det på GitHub løses som vanlig i Git (commit eller stash lokalt før `pull`, eller løs merge-konflikter hvis Git ber om det).
+Kjør gjerne `pytest` eller `./scripts/check.sh` etter større hopp i biblioteker.
 
 ## Dropbox / synk
 
-Repoet ligger under Dropbox i ditt oppsett. Unngå å dele `.venv` mellom maskiner via Dropbox — gjenskape med `python -m venv .venv` og `pip install -e ".[dev]"` per maskin for færre rare feil.
+Unngå å dele `.venv` mellom maskiner via Dropbox — gjenskape med `python -m venv .venv` og `pip install -e ".[dev]"` per maskin for færre rare feil.
