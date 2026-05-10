@@ -1,32 +1,24 @@
 #!/bin/bash
 # Script to run the timekpr-app server with process management
 
-# Change to the project directory
 cd "$(dirname "$0")"
 
-# Check if server is already running
-PID=$(pgrep -f "python.*timekpr_app.api.main" | head -n 1)
+PID=$(pgrep -f "timekpr_app.api.main" | head -n 1)
 
 if [ ! -z "$PID" ]; then
-  echo "⚠️  Server is already running (PID: $PID)"
-  read -p "Do you want to stop and restart it? (y/n) " -n 1 -r
+  echo "Server is already running (PID: $PID)"
+  read -p "Stop and restart? (y/n) " -n 1 -r
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Stopping existing server..."
     kill $PID
     sleep 1
   else
-    echo "Exiting without starting new server."
     exit 0
   fi
 fi
 
-# Activate virtual environment
-source .venv/bin/activate
+SCRIPT_DIR=$(pwd)
+export PYTHONPATH="$SCRIPT_DIR/src"
 
-# Set PYTHONPATH
-export PYTHONPATH=src
-
-echo "Starting timeKpr server..."
-# Run the server
-python -c "from timekpr_app.api.main import cli; cli()"
+echo "Starting timeKpr server on http://localhost:8000..."
+.venv/bin/python -m timekpr_app.api.main

@@ -47,9 +47,10 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
   const [minutesInput, setMinutesInput] = useState("15")
   const [showTimeModal, setShowTimeModal] = useState(false)
 
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
+  const formatTime = (seconds: number | null | undefined) => {
+    const s = seconds || 0
+    const hours = Math.floor(s / 3600)
+    const minutes = Math.floor((s % 3600) / 60)
     if (hours > 0 && minutes > 0) {
       return `${hours}h ${minutes}m`
     } else if (hours > 0) {
@@ -60,9 +61,11 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
     return "0m"
   }
 
-  const calculatePercentage = (remaining: number, limit: number) => {
-    if (limit === 0) return 100
-    return Math.min(100, Math.max(0, (remaining / limit) * 100))
+  const calculatePercentage = (remaining: number | null | undefined, limit: number | null | undefined) => {
+    const r = remaining || 0
+    const l = limit || 0
+    if (l === 0) return 100
+    return Math.min(100, Math.max(0, (r / l) * 100))
   }
 
   const getProgressBarColor = (percentage: number) => {
@@ -76,7 +79,10 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
     datasets: [
       {
         label: "Time",
-        data: [user.daily_limit - user.time_left_today, user.time_left_today],
+        data: [
+          Math.max(0, (user.daily_limit || 0) - (user.time_left_today || 0)),
+          user.time_left_today || 0
+        ],
         backgroundColor: ["rgba(239, 68, 68, 0.8)", "rgba(59, 130, 246, 0.8)"],
         borderColor: ["rgba(239, 68, 68, 1)", "rgba(59, 130, 246, 1)"],
         borderWidth: 2,
@@ -91,7 +97,10 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
     datasets: [
       {
         label: "Time",
-        data: [user.weekly_limit - user.time_left_week, user.time_left_week],
+        data: [
+          Math.max(0, (user.weekly_limit || 0) - (user.time_left_week || 0)),
+          user.time_left_week || 0
+        ],
         backgroundColor: ["rgba(239, 68, 68, 0.8)", "rgba(59, 130, 246, 0.8)"],
         borderColor: ["rgba(239, 68, 68, 1)", "rgba(59, 130, 246, 1)"],
         borderWidth: 2,
@@ -106,7 +115,10 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
     datasets: [
       {
         label: "Time",
-        data: [user.monthly_limit - user.time_left_month, user.time_left_month],
+        data: [
+          Math.max(0, (user.monthly_limit || 0) - (user.time_left_month || 0)),
+          user.time_left_month || 0
+        ],
         backgroundColor: ["rgba(239, 68, 68, 0.8)", "rgba(59, 130, 246, 0.8)"],
         borderColor: ["rgba(239, 68, 68, 1)", "rgba(59, 130, 246, 1)"],
         borderWidth: 2,
@@ -119,13 +131,6 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
   const baseChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
-    animation: {
-      duration: 1500,
-      easing: 'easeInOutQuart',
-      from: {
-        y: 0,
-      },
-    },
     plugins: {
       legend: { display: false },
       title: { 
@@ -143,7 +148,7 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
         callbacks: {
           label: (context: any) => {
             const label = context.dataset.label || ''
-            const value = context.raw as number
+            const value = (context.raw as number) || 0
             return `${label}: ${formatTime(value)}`
           }
         }
@@ -157,8 +162,8 @@ function Dashboard({ users, onLogout, onUpdateTime, error, onSettingsClick }: Da
         },
         ticks: { 
           callback: (value: string | number) => {
-            const num = typeof value === 'string' ? parseInt(value) : value
-            return formatTime(num)
+            const num = typeof value === 'string' ? parseInt(value) : (value || 0)
+            return formatTime(isNaN(num) ? 0 : num)
           },
           color: '#6b7280',
         },
