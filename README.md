@@ -164,13 +164,58 @@ docker run -p 8000:8000 --env-file .env timekpr-app
 
 **Merk**: Docker krever root-tilgang for å lese timekpr-filer. Konfigurer volum-mount for `/var/lib/timekpr/`.
 
-## Sikkerhet
+## 🔒 Sikkerhet (KRITISK - Les dette før bruk!)
+
+### ⚠️ KRITISKE SIKKERHETSINNSTILLINGER
+
+**Før du kjører appen for første gang, må du:**
+
+1. **Bind til localhost (IKKE 0.0.0.0 eller ::)**
+   ```bash
+   # I .env filen:
+   HOST=127.0.0.1
+   ```
+   **Hvorfor:** Hvis du bruker `::` eller `0.0.0.0`, er serveren tilgjengelig fra hele nettverket ditt og potensielt internett.
+
+2. **Generer sterkt JWT_SECRET**
+   ```bash
+   # Kjør dette og lim inn i .env:
+   openssl rand -hex 64
+   # ELLER
+   python3 -c "import secrets; print(secrets.token_urlsafe(64))"
+   ```
+
+3. **Sett sterkt admin-passord**
+   ```bash
+   # Generer hash og lim inn i .env:
+   python3 -c "from timekpr_app.auth import hash_password; print(hash_password('ditt_sterke_passord'))"
+   ```
+
+4. **Blokker port 8000 eksternt**
+   ```bash
+   sudo ufw deny 8000/tcp
+   ```
+
+5. **Deaktiver port forwarding på routeren**
+   - Gå inn i router-admin
+   - Sjekk at port 8000 IKKE er forwardet til denne maskinen
+
+### 🔐 Andre sikkerhetsinnstillinger
 
 - **Kjør som root**: Appen trenger root for å lese timekpr-filer under `/var/lib/timekpr/`
-- **JWT-tokens**: Bruk sterkt `JWT_SECRET` i produksjon
-- **Admin-passord**: Endre `ADMIN_PASSWORD_HASH` fra standardverdien
-- **HTTPS**: Bruk reverse proxy (nginx, Caddy) med HTTPS i produksjon
-- **CORS**: Konfigurer `CORS_ORIGINS` for produksjonsdomener
+- **Token utløp**: Standard er nå 15 minutter (var 24 timer)
+- **CORS**: Standard er nå `http://localhost:5173` (var alle localhost-porter)
+- **HTTPS**: For ekstern tilgang, bruk reverse proxy (nginx, Caddy) med HTTPS
+
+### 🛡️ Sikkerhets-sjekkliste
+
+| Sjekk | Status | Handling |
+|-------|--------|----------|
+| Server binder til 127.0.0.1 | ⬜ | `HOST=127.0.0.1` i .env |
+| JWT_SECRET er satt | ⬜ | Generer med `openssl rand -hex 64` |
+| Admin-passord er satt | ⬜ | Generer hash med `hash_password()` |
+| Port 8000 blokkert eksternt | ⬜ | `sudo ufw deny 8000/tcp` |
+| Ingen port forwarding | ⬜ | Sjekk router-innstillinger |
 
 ## Lisens
 

@@ -1,34 +1,31 @@
 # Hemmeligheter
 
-**Ikke sjekk inn passord, nøkler, tokens eller andre hemmeligheter i Git!**
+**⚠️ KRITISK: Ikke sjekk inn passord, nøkler, tokens eller andre hemmeligheter i Git!**
+
+**⚠️ SIKKERHETSADVARSEL: Før du kjører appen, må du fullføre alle KRITISKE steg i README.md**
 
 ## Hvordan håndtere hemmeligheter
 
 ### 1. Miljøvariabler (anbefalt)
 
+**KRITISK:** Appen krever nå at `JWT_SECRET` og `ADMIN_PASSWORD_HASH` er satt i miljøvariabler.
+Det er **ikke** lenger standardverdier i koden.
+
 Lag en `.env` fil i prosjektroten (står i `.gitignore`):
 
 ```bash
 cp .env.example .env
-# Rediger .env med dine verdier
-```
-
-Eksempel `.env`:
-```
-APP_ENV=development
-JWT_SECRET=sterk-hemmelig-nøkkel-here
-ADMIN_PASSWORD_HASH=$2b$12$...bcrypt-hash...
-HOST=0.0.0.0
-PORT=8000
+# Rediger .env med dine verdier (ALL variabler under must be set!)
 ```
 
 ### 2. `.env.example`
 
-`.env.example` er **sjekket inn** og viser hvilke variabler som trenges, men med standardverdier som fungerer for lokal utvikling.
+`.env.example` er **sjekket inn** og viser hvilke variabler som trenges, **uten standardverdier** for sikkerhetskritiske innstillinger.
 
 ### 3. timekpr_app.config
 
-`timekpr_app.config` laster valgfritt en `.env` fra prosjektroten ved lokal kjøring via `load_dotenv()`.
+`timekpr_app.config` laster `.env` fra prosjektroten ved lokal kjøring via `load_dotenv()`.
+Dersom `.env` mangler, vil den prøve å lese fra miljøvariabler i systemet.
 
 ## Hemmeligheter i dette prosjektet
 

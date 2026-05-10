@@ -22,28 +22,22 @@ class AppSettings(BaseSettings):
     app_title: str = "timekpr App"
     app_version: str = "0.1.0"
     
-    # Server
-    host: str = os.getenv("HOST", "::")
+    # Server - CRITICAL: Bind to localhost only for security
+    host: str = os.getenv("HOST", "127.0.0.1")
     port: int = int(os.getenv("PORT", "8000"))
     
-    # JWT
-    jwt_secret: str = os.getenv("JWT_SECRET", "dev-secret-change-in-prod!")
+    # JWT - CRITICAL: Must be set in environment, no defaults
+    jwt_secret: str
     jwt_algorithm: str = "HS256"
-    jwt_expire_minutes: int = int(os.getenv("JWT_EXPIRE_MINUTES", "1440"))
+    jwt_expire_minutes: int = int(os.getenv("JWT_EXPIRE_MINUTES", "15"))
     
-    # Admin password (hashed with bcrypt)
-    admin_password_hash: str = os.getenv(
-        "ADMIN_PASSWORD_HASH",
-        "$2b$12$9WT/6ve2KeODA3Hm50zAmOLABpFN1IcHiZ7lQEC.otTYP3/YLVexe"  # default: "admin"
-    )
+    # Admin password - CRITICAL: Must be set in environment, no defaults
+    admin_password_hash: str
     
-    # CORS
-    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000", "http://localhost:8000"]
+    # CORS - Restrict to specific origins only
+    cors_origins: list[str] = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
     
-    class Config:
-        """Pydantic settings configuration."""
-        env_file = ".env"
-        case_sensitive = False
+    model_config = {"env_file": ".env", "case_sensitive": False}
 
 
 def get_settings() -> AppSettings:
