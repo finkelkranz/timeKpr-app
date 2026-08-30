@@ -86,10 +86,10 @@ async def get_current_user(
 
 async def verify_admin(current_user: dict[str, Any] = Depends(get_current_user)) -> str:
     """Verify that current user is admin."""
-    # In this setup, we only have one admin user ("admin")
-    if current_user.get("sub") != "admin":
+    # In this setup, we only have one admin user ("torgeir")
+    if current_user.get("sub") != "torgeir":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
         )
-    return "admin"
+    return "torgeir"

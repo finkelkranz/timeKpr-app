@@ -26,6 +26,7 @@ ENV/
 # Environment & secrets (never commit real secrets)
 .env
 .env.*
+.env.agent
 !.env.example
 *.pem
 *.key
