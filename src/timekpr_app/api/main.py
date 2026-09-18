@@ -4,18 +4,18 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.middleware import SlowAPIMiddleware
 
 from timekpr_app import __version__
 from timekpr_app.api import auth, config, health, stats, stats_history
+from timekpr_app.api.limiter import limiter
 from timekpr_app.config import get_settings
 from timekpr_app.timekpr_db import init_db, save_all_users_stats
-from timekpr_app.timekpr_file import get_all_users_data
 
 # Configure logging
 logging.basicConfig(
@@ -101,6 +101,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.state.limiter = limiter
+
+# Add rate limiting middleware
+app.add_middleware(SlowAPIMiddleware)
 
 # Include routers with /api prefix
 app.include_router(health.router, prefix="/api")

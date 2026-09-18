@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
+from timekpr_app.api.limiter import limiter
 from timekpr_app.auth import verify_admin
 from timekpr_app.models import SetAllowedHoursRequest, SetTimeLeftRequest, UserConfig
 from timekpr_app.timekpr import get_timekpr_interface
@@ -15,8 +16,9 @@ router = APIRouter(prefix="/config", tags=["configuration"])
 
 
 @router.get("/users/{username}", response_model=UserConfig)
+@limiter.limit("20/minute")
 async def get_user_config(
-    username: str, admin: str = Depends(verify_admin)
+    request: Request, username: str, admin: str = Depends(verify_admin)
 ) -> UserConfig:
     """Get user's complete timekpr configuration."""
     try:
@@ -82,15 +84,17 @@ async def get_user_config(
 
 
 @router.put("/users/{username}/time-left-today")
+@limiter.limit("10/minute")
 async def set_time_left_today(
+    request: Request,
     username: str,
-    request: SetTimeLeftRequest,
+    set_time_data: SetTimeLeftRequest,
     admin: str = Depends(verify_admin),
 ) -> dict[str, str]:
     """Adjust remaining time for today."""
     try:
         interface = get_timekpr_interface()
-        success = interface.set_time_left_day(username, request.seconds)
+        success = interface.set_time_left_day(username, set_time_data.seconds)
         
         if not success:
             raise HTTPException(
@@ -98,7 +102,10 @@ async def set_time_left_today(
                 detail=f"Failed to set time for {username}",
             )
         
-        return {"status": "ok", "message": f"Set daily time to {request.seconds}s for {username}"}
+        return {
+            "status": "ok",
+            "message": f"Set daily time to {set_time_data.seconds}s for {username}",
+        }
     except Exception as e:
         logger.error(f"Failed to set time for {username}: {e}")
         raise HTTPException(
@@ -108,16 +115,18 @@ async def set_time_left_today(
 
 
 @router.put("/users/{username}/allowed-hours")
+@limiter.limit("10/minute")
 async def set_allowed_hours(
+    request: Request,
     username: str,
-    request: SetAllowedHoursRequest,
+    set_hours_data: SetAllowedHoursRequest,
     admin: str = Depends(verify_admin),
 ) -> dict[str, str]:
     """Set allowed hours for a specific day (1-7)."""
     try:
         interface = get_timekpr_interface()
         success = interface.set_allowed_hours(
-            username, request.day, request.hours
+            username, set_hours_data.day, set_hours_data.hours
         )
         
         if not success:

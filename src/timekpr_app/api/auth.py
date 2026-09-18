@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 
+from timekpr_app.api.limiter import limiter
 from timekpr_app.auth import create_access_token, verify_password
 from timekpr_app.config import get_settings
 from timekpr_app.models import LoginRequest, TokenResponse
@@ -16,10 +17,14 @@ settings = get_settings()
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(request: LoginRequest) -> TokenResponse:
-    """Login with admin password to get JWT token."""
+@limiter.limit("5/minute")
+async def login(request: Request, login_data: LoginRequest) -> TokenResponse:
+    """Login with admin password to get JWT token.
+    
+    Rate limited to 5 attempts per minute per IP address.
+    """
     # Check password
-    if not verify_password(request.password, settings.admin_password_hash):
+    if not verify_password(login_data.password, settings.admin_password_hash):
         logger.warning("Failed login attempt with incorrect password")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

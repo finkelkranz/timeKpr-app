@@ -5,19 +5,21 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
+from timekpr_app.api.limiter import limiter
 from timekpr_app.auth import verify_admin
 from timekpr_app.models import AddTimeRequest, UserStats
 from timekpr_app.timekpr import get_timekpr_interface
-from timekpr_app.timekpr_file import get_all_users_data, get_user_data, add_time_to_user
+from timekpr_app.timekpr_file import add_time_to_user, get_all_users_data, get_user_data
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/stats", tags=["statistics"])
 
 
 @router.get("/users", response_model=list[str])
-async def get_users(admin: str = Depends(verify_admin)) -> list[str]:
+@limiter.limit("30/minute")
+async def get_users(request: Request, admin: str = Depends(verify_admin)) -> list[str]:
     """Get list of users managed by timekpr.
     
     Uses file-based reading from /var/lib/timekpr/config/ for reliability.
@@ -44,11 +46,14 @@ async def get_users(admin: str = Depends(verify_admin)) -> list[str]:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch users",
-        )
+        ) from None
 
 
 @router.get("/users/{username}", response_model=UserStats)
-async def get_user_stats(username: str, admin: str = Depends(verify_admin)) -> UserStats:
+@limiter.limit("30/minute")
+async def get_user_stats(
+    request: Request, username: str, admin: str = Depends(verify_admin)
+) -> UserStats:
     """Get screen time statistics for a user.
     
     Uses file-based reading from /var/lib/timekpr/ for actual consumed time.
@@ -113,7 +118,13 @@ async def get_user_stats(username: str, admin: str = Depends(verify_admin)) -> U
             monthly_limit = int(monthly_limit)
         
         # Parse allowed days (1-7)
-        allowed_weekdays = config.get("ALLOWED_DAYS", [1, 2, 3, 4, 5]) if config else [1, 2, 3, 4, 5]
+        allowed_weekdays = config.get("ALLOWED_DAYS", [1, 2, 3, 4, 5]) if config else [
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]
         if isinstance(allowed_weekdays, (list, tuple)):
             allowed_weekdays = list(allowed_weekdays)
         
@@ -146,13 +157,15 @@ async def get_user_stats(username: str, admin: str = Depends(verify_admin)) -> U
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch stats for {username}",
-        )
+        ) from None
 
 
 @router.post("/users/{username}/add-time")
+@limiter.limit("10/minute")
 async def add_time_to_user_endpoint(
+    request: Request,
     username: str,
-    request: AddTimeRequest,
+    add_time_data: AddTimeRequest,
     admin: str = Depends(verify_admin),
 ) -> dict[str, Any]:
     """Add time to a user's remaining time.
@@ -160,10 +173,11 @@ async def add_time_to_user_endpoint(
     This is the primary endpoint for the use case:
     "Parent opens app on mobile and gives child more time to finish homework"
     
+    Rate limited to 10 requests per minute per IP address.
+    
     Args:
         username: The username to add time for
-        seconds: Number of seconds to ADD (e.g., 3600 = 1 hour)
-        period: "day", "week", or "month" - which time period to extend
+        add_time_request: Request body with seconds and period
         
     Returns:
         Success message with new remaining time
@@ -174,13 +188,13 @@ async def add_time_to_user_endpoint(
         
         Adds 1 hour to Agnes's remaining daily time.
     """
-    if request.period not in ("day", "week", "month"):
+    if add_time_data.period not in ("day", "week", "month"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Period must be 'day', 'week', or 'month'",
         )
     
-    if request.seconds <= 0:
+    if add_time_data.seconds <= 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Seconds must be a positive number",
@@ -191,28 +205,37 @@ async def add_time_to_user_endpoint(
         user_data = get_user_data(username)
         
         # Add the time via D-Bus
-        success = add_time_to_user(username, request.seconds, request.period)
+        success = add_time_to_user(username, add_time_data.seconds, add_time_data.period)
         
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to add {request.seconds}s to {username}'s {request.period} time",
+                detail=(
+            f"Failed to add {add_time_data.seconds}s to {username}'s "
+            f"{add_time_data.period} time"
+        ),
             )
         
         # Get updated state
         user_data_after = get_user_data(username)
         
         # Return success with time info
-        remaining_key = f"remaining_{request.period}"
+        remaining_key = f"remaining_{add_time_data.period}"
         remaining_before = getattr(user_data, remaining_key, 0) if user_data else 0
-        remaining_after = getattr(user_data_after, remaining_key, 0) if user_data_after else remaining_before + request.seconds
+        remaining_after = (
+            getattr(user_data_after, remaining_key, 0)
+            if user_data_after
+            else remaining_before + add_time_data.seconds
+        )
         
         return {
             "status": "ok",
-            "message": f"Added {request.seconds}s to {username}'s {request.period} time",
+            "message": (
+                f"Added {add_time_data.seconds}s to {username}'s {add_time_data.period} time"
+            ),
             "user": username,
-            "period": request.period,
-            "seconds_added": request.seconds,
+            "period": add_time_data.period,
+            "seconds_added": add_time_data.seconds,
             "remaining_before": remaining_before,
             "remaining_after": remaining_after,
         }
@@ -220,10 +243,10 @@ async def add_time_to_user_endpoint(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User '{username}' not found in timekpr",
-        )
+        ) from None
     except Exception as e:
         logger.error(f"Failed to add time for {username}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to add time: {e}",
-        )
+        ) from None

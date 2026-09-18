@@ -16,8 +16,9 @@ import logging
 import re
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
+from timekpr_app.api.limiter import limiter
 from timekpr_app.auth import verify_admin
 from timekpr_app.timekpr_db import (
     DB_FILE,
@@ -44,7 +45,9 @@ def _validate_date_format(date: str | None) -> str | None:
 
 
 @router.get("/users/{username}")
+@limiter.limit("20/minute")
 async def get_user_history_endpoint(
+    request: Request,
     username: str,
     days: int = Query(default=7, ge=1, le=365, description="Number of days of history"),
     admin: str = Depends(verify_admin),
@@ -81,7 +84,9 @@ async def get_user_history_endpoint(
 
 
 @router.get("/users/{username}/daily")
+@limiter.limit("20/minute")
 async def get_daily_usage_endpoint(
+    request: Request,
     username: str,
     date: str | None = Query(
         default=None, description="Date in YYYY-MM-DD format. Defaults to today."
@@ -112,7 +117,9 @@ async def get_daily_usage_endpoint(
 
 
 @router.get("/users/{username}/weekly")
+@limiter.limit("20/minute")
 async def get_weekly_summary_endpoint(
+    request: Request,
     username: str,
     admin: str = Depends(verify_admin),
 ) -> dict[str, Any]:
@@ -150,7 +157,9 @@ async def get_weekly_summary_endpoint(
 
 
 @router.get("/leaderboard")
+@limiter.limit("15/minute")
 async def get_leaderboard_endpoint(
+    request: Request,
     limit: int = Query(default=10, ge=1, le=100, description="Maximum number of users"),
     days: int = Query(default=7, ge=1, le=365, description="Number of days to consider"),
     admin: str = Depends(verify_admin),
