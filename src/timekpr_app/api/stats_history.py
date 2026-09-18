@@ -13,7 +13,7 @@ Endpoints:
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+import re
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -29,6 +29,18 @@ from timekpr_app.timekpr_db import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/stats-history", tags=["statistics-history"])
+
+
+def _validate_date_format(date: str | None) -> str | None:
+    """Validate date format YYYY-MM-DD."""
+    if date is None:
+        return None
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Date must be in YYYY-MM-DD format",
+        )
+    return date
 
 
 @router.get("/users/{username}")
@@ -65,15 +77,14 @@ async def get_user_history_endpoint(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch history for {username}",
-        )
+        ) from None
 
 
 @router.get("/users/{username}/daily")
 async def get_daily_usage_endpoint(
     username: str,
     date: str | None = Query(
-        default=None,
-        description="Date in YYYY-MM-DD format. Defaults to today.",
+        default=None, description="Date in YYYY-MM-DD format. Defaults to today."
     ),
     admin: str = Depends(verify_admin),
 ) -> list[dict[str, Any]]:
@@ -85,16 +96,9 @@ async def get_daily_usage_endpoint(
         GET /api/stats-history/users/agnes/daily?date=2024-01-15
     """
     try:
+        # Validate date format
         if date:
-            # Validate date format
-            try:
-                datetime.strptime(date, "%Y-%m-%d")
-            except ValueError:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Date must be in YYYY-MM-DD format",
-                )
-        
+            _validate_date_format(date)
         usage = get_daily_usage(username, date)
         return usage
     except HTTPException:
@@ -104,7 +108,7 @@ async def get_daily_usage_endpoint(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch daily usage for {username}",
-        )
+        ) from None
 
 
 @router.get("/users/{username}/weekly")
@@ -142,7 +146,7 @@ async def get_weekly_summary_endpoint(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch weekly summary for {username}",
-        )
+        ) from None
 
 
 @router.get("/leaderboard")
@@ -179,7 +183,7 @@ async def get_leaderboard_endpoint(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch leaderboard",
-        )
+        ) from None
 
 
 @router.get("/info")
@@ -227,4 +231,4 @@ async def get_db_info(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch database info",
-        )
+        ) from None

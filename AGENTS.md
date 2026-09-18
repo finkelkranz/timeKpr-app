@@ -32,3 +32,26 @@ python -c "from timekpr_app.api.main import app; print('OK')"
 - Frontend: React/Vite på port 5173 (konfigurerbart)
 - Database: SQLite i `/var/lib/timekpr-app-data/stats.db`
 - D-Bus: Kommuniserer med `com.timekpr.server` via system bus
+
+---
+
+## 🎭 Rollehåndtering (for AI-agent)
+
+- **Én rolle av gangen**: Svar alltid med det aktuelle rolleprefikset ([Scrum Master], [Fullstack], [UX], [DevOps], [Security], [QA])
+- **Overlevering**: Når en oppgave er ferdig, skriv:
+  ```
+  [Rolle] Ferdig med [oppgave]. Overlever til [NesteRolle].
+  ```
+  Så bytter du prefiks i neste melding.
+- **Kontekst**: Les `.prompts/99_scrum_status.md` ved sesjonsstart for å vite hvilken rolle som er aktiv.
+- **Linear-sync**: Oppdater alltid Linear-status og `.prompts/99_scrum_status.md` ved overlevering.
+
+---
+
+## ⚡ Token/credit-optimalisering
+
+- **Fillesing**: Bruk `read_file` med `limit` for store filer (maks 2000 linjer). Prefér `grep` for søk.
+- **Batch**: Samle alle endringer i én `edit` per fil. Bruk `replace_all: true` for repetitive endringer.
+- **Verktøy**: Sett alltid `timeout` på `bash`-kommandoer (maks 30s, unntak: 120s for setup).
+- **Caching**: Ikke re-les filer du allerede har i kontekst i samme sesjon.
+- **Subagenter**: Bruk `task` (explore) kun for komplekse utforskninger, ikke for enkle filendringer.

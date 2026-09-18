@@ -60,3 +60,53 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     version: str
     environment: str
+
+
+# --- Configuration Request Models ---
+
+
+class SetTimeLeftRequest(BaseModel):
+    """Request model for setting remaining time for today."""
+
+    seconds: int = Field(..., ge=0, description="Number of seconds remaining for today")
+
+
+class SetAllowedHoursRequest(BaseModel):
+    """Request model for setting allowed hours for a day."""
+
+    day: int = Field(..., ge=1, le=7, description="Day of week (1=Monday, 7=Sunday)")
+    hours: list[int] = Field(
+        ..., min_length=1, description="List of allowed hours (0-23)"
+    )
+
+
+# --- Statistics History Query Models ---
+
+
+class UserHistoryQuery(BaseModel):
+    """Query parameters for user history endpoint."""
+
+    days: int = Field(
+        default=7, ge=1, le=365, description="Number of days of history"
+    )
+
+
+class DailyUsageQuery(BaseModel):
+    """Query parameters for daily usage endpoint."""
+
+    date: str | None = Field(
+        default=None,
+        pattern=r"^\d{4}-\d{2}-\d{2}$",
+        description="Date in YYYY-MM-DD format",
+    )
+
+
+class LeaderboardQuery(BaseModel):
+    """Query parameters for leaderboard endpoint."""
+
+    limit: int = Field(
+        default=10, ge=1, le=100, description="Maximum number of users"
+    )
+    days: int = Field(
+        default=7, ge=1, le=365, description="Number of days to consider"
+    )
