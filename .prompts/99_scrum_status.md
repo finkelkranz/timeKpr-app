@@ -22,12 +22,13 @@
     - `src/timekpr_app/api/stats.py`: Stats endpoints 10-30/minutt
     - `src/timekpr_app/api/stats_history.py`: History endpoints 15-20/minutt
     - `src/timekpr_app/api/health.py`: Health endpoint 60/minutt
+    - `tests/test_rate_limiting.py`: 5 nye tester
   - Godkjenninger:
     - [Security]: ✅ IMPLEMENTERT
-    - [QA]: ⏳ AVENTER TEST
+    - [QA]: ✅ **PASS** (80 tester passed, 9 skipped)
     - [Security Review]: ⏳ AVENTER
     - [PO]: ⏳ AVENTER AKSEPT
-  - GitHub: ✅ Commited & pushed (592f57c)
+  - GitHub: ✅ Commited & pushed (bf4d117)
 
 - **TOG-18** - [Security] Implementer Pydantic input-validering for alle API-endepunkter → **Production**
   - Endringer:
@@ -60,8 +61,8 @@
 
 ## 📊 GitHub status
 - **Branch**: main
-- **Commit**: 592f57c (TOG-19: rate-limiting middleware)
-- **Sist pushed**: 1b519ae
+- **Commit**: bf4d117 (TOG-19: rate limiting tests)
+- **Sist pushed**: 592f57c
 - **Endringer commited**:
   - `pyproject.toml`: Lagt til slowapi dependency
   - `src/timekpr_app/api/limiter.py`: Ny rate limiter modul
@@ -71,7 +72,8 @@
   - `src/timekpr_app/api/stats.py`: 10-30/minutt rate limits
   - `src/timekpr_app/api/stats_history.py`: 15-20/minutt rate limits
   - `src/timekpr_app/api/health.py`: 60/minutt rate limit
-- **Push**: ✅ Synkronisert med origin/main (592f57c)
+  - `tests/test_rate_limiting.py`: 5 nye tester
+- **Push**: ✅ Synkronisert med origin/main (bf4d117)
 
 ---
 
