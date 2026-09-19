@@ -1,18 +1,31 @@
-# Siste status - 2026-09-18
+# Siste status - 2026-09-19
 
 ---
 
 ## 🎯 Aktiv oppgave
-- **Issue**: TOG-20 - [DevOps] Oppdater CORS-konfigurasjon med sikre defaults
-- **State**: Ready
-- **Tildelt**: [DevOps]
+- **Issue**: TOG-21 - [Security] JWT-implementasjonsgjennomgang
+- **State**: Backlog
+- **Tildelt**: [Security]
 - **Prioritet**: 1 (Urgent)
 - **Phase**: Phase 1 - Sikkerhetsfundament (S-2)
 
 ---
 
 ## ✅ Fullførte oppgaver (siste sesjon)
-- **TOG-19** - [Security] Legg til rate-limiting middleware i FastAPI → **Testing**
+- **TOG-20** - [DevOps] Oppdater CORS-konfigurasjon med sikre defaults → **Production**
+  - Endringer:
+    - `src/timekpr_app/config.py`: Lagt til 6 nye CORS-instillinger (cors_allow_methods, cors_allow_headers, cors_expose_headers, cors_max_age, cors_allow_credentials)
+    - `src/timekpr_app/api/main.py`: Oppdatert CORSMiddleware med alle sikre parametre
+    - `.env.example`: Utvidet dokumentasjon med sikkerhetsadvarsler og alle CORS-variabler
+    - `tests/test_config.py`: Lagt til test_cors_defaults()
+  - Godkjenninger:
+    - [DevOps]: ✅ IMPLEMENTERT
+    - [Security]: ✅ **APPROVED**
+    - [QA]: ✅ **PASS** (81 tester passed, 9 skipped)
+    - [PO]: ⏳ AVENTER AKSEPT
+  - GitHub: ✅ Commited & pushed (8855d38)
+
+- **TOG-19** - [Security] Legg til rate-limiting middleware i FastAPI → **Production**
   - Endringer:
     - `pyproject.toml`: Lagt til slowapi dependency
     - `src/timekpr_app/api/limiter.py`: Ny fil med global Limiter instance
@@ -26,9 +39,8 @@
   - Godkjenninger:
     - [Security]: ✅ IMPLEMENTERT
     - [QA]: ✅ **PASS** (80 tester passed, 9 skipped)
-    - [Security Review]: ⏳ AVENTER
+    - [Security Review]: ✅ **APPROVED**
     - [PO]: ⏳ AVENTER AKSEPT
-  - GitHub: ✅ Commited & pushed (bf4d117)
 
 - **TOG-18** - [Security] Implementer Pydantic input-validering for alle API-endepunkter → **Production**
   - Endringer:
@@ -55,36 +67,38 @@
     - [Security]: ✅ APPROVED
     - [QA]: ✅ PASS
     - [PO]: ✅ OK
-  - GitHub: Commited & pushed (dcc0cf8)
+  - GitHub: ✅ Commited & pushed (dcc0cf8)
 
 ---
 
 ## 📊 GitHub status
 - **Branch**: main
-- **Commit**: bf4d117 (TOG-19: rate limiting tests)
-- **Sist pushed**: 592f57c
+- **Commit**: 8855d38 (TOG-20: Implement secure CORS defaults)
+- **Sist pushed**: 8855d38
 - **Endringer commited**:
   - `pyproject.toml`: Lagt til slowapi dependency
   - `src/timekpr_app/api/limiter.py`: Ny rate limiter modul
-  - `src/timekpr_app/api/main.py`: Rate limiter middleware
+  - `src/timekpr_app/api/main.py`: Rate limiter middleware + CORS middleware
   - `src/timekpr_app/api/auth.py`: 5/minutt rate limit
-  - `src/timekpr_app/api/config.py`: 10-20/minutt rate limits
+  - `src/timekpr_app/api/config.py`: 10-20/minutt rate limits + CORS settings
   - `src/timekpr_app/api/stats.py`: 10-30/minutt rate limits
   - `src/timekpr_app/api/stats_history.py`: 15-20/minutt rate limits
   - `src/timekpr_app/api/health.py`: 60/minutt rate limit
+  - `.env.example`: Utvidet CORS-dokumentasjon
   - `tests/test_rate_limiting.py`: 5 nye tester
-- **Push**: ✅ Synkronisert med origin/main (bf4d117)
+  - `tests/test_config.py`: test_cors_defaults()
+- **Push**: ✅ Synkronisert med origin/main (8855d38)
 
 ---
 
 ## 📋 Linear status
 - **Totalt issues**: 32
 - **In Progress**: 0
-- **Backlog**: 25
-- **Production**: 2 (TOG-17, TOG-18)
-- **Testing**: 1 (TOG-19)
-- **Ready**: 1 (TOG-20)
-- **Neste oppgave**: TOG-19 (priority=1, Testing) → TOG-20 (priority=1, Ready)
+- **Backlog**: 24
+- **Production**: 4 (TOG-17, TOG-18, TOG-19, TOG-20)
+- **Testing**: 0
+- **Ready**: 0
+- **Neste oppgave**: TOG-21 (priority=1, Backlog)
 
 ---
 
@@ -93,8 +107,8 @@
 |-------|--------|-----------|-------|-------|
 | TOG-17 | Full kodebase audit... | 1 | Production | Security |
 | TOG-18 | Pydantic input-validering | 1 | Production | Fullstack |
-| **TOG-19** | **Rate-limiting middleware** | **1** | **Testing** | **[QA]** |
-| **TOG-20** | **CORS-konfigurasjon** | **1** | **Ready** | **[DevOps]** |
+| TOG-19 | Rate-limiting middleware | 1 | **Production** | Security |
+| TOG-20 | CORS-konfigurasjon | 1 | **Production** | DevOps |
 | TOG-21 | JWT-implementasjonsgjennomgang | 1 | Backlog | Security |
 
 ---
@@ -104,16 +118,16 @@
 - Admin-brukernavn endret til "torgeir"
 - TOG-17 i Production
 - TOG-18 i Production (DoD oppfylt: QA PASS + Security APPROVED)
-- TOG-19 i Testing, klar for [QA]
-- TOG-20 i Ready, klar for [DevOps]
+- TOG-19 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
+- TOG-20 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
 - AGENTS.md oppdatert med rollehåndtering og token-optimalisering
-- Alle endringer commited og pushed (592f57c)
+- Alle endringer commited og pushed (8855d38)
+- TOG-19 og TOG-20 flyttet til Production av [QA] etter fullført testing
 
 ---
 
 ## 🔄 Neste gang (start prosedyre)
 1. `git pull origin main`
 2. Les denne filen (`.prompts/99_scrum_status.md`)
-3. Sjekk Linear: TOG-19 i Testing, TOG-20 i Ready
-4. [QA] Starte testing av TOG-19 (rate-limiting middleware)
-5. [DevOps] Starte på TOG-20 (CORS-konfigurasjon)
+3. Sjekk Linear: TOG-21 i Backlog (neste prioritet)
+4. [Security] Starte på TOG-21 (JWT-implementasjonsgjennomgang)
