@@ -34,8 +34,33 @@ class AppSettings(BaseSettings):
     # Admin password - CRITICAL: Must be set in environment, no defaults
     admin_password_hash: str
     
-    # CORS - Restrict to specific origins only
+    # CORS - Secure defaults for production
+    # CRITICAL: Never use ["*"] with allow_credentials=True
     cors_origins: list[str] = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
+    
+    # CORS - Allowed HTTP methods (restricted to safe methods only)
+    cors_allow_methods: list[str] = os.getenv(
+        "CORS_ALLOW_METHODS", 
+        "GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD"
+    ).split(",")
+    
+    # CORS - Allowed headers (restricted to necessary headers only)
+    cors_allow_headers: list[str] = os.getenv(
+        "CORS_ALLOW_HEADERS",
+        "Accept,Accept-Language,Content-Language,Content-Type,Authorization"
+    ).split(",")
+    
+    # CORS - Expose headers to browser
+    cors_expose_headers: list[str] = os.getenv(
+        "CORS_EXPOSE_HEADERS",
+        "Content-Length,Content-Range"
+    ).split(",")
+    
+    # CORS - Max age for preflight cache (seconds)
+    cors_max_age: int = int(os.getenv("CORS_MAX_AGE", "600"))
+    
+    # CORS - Allow credentials (cookies, auth headers)
+    cors_allow_credentials: bool = os.getenv("CORS_ALLOW_CREDENTIALS", "true").lower() == "true"
     
     model_config = {"env_file": ".env", "case_sensitive": False}
 
