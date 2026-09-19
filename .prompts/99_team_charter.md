@@ -1,8 +1,8 @@
 # Team Charter - timeKpr-app
 
-**Versjon:** 1.0  
+**Versjon:** 1.1  
 **Opprettet:** 21.08.2026  
-**Oppdatert:** 21.08.2026  
+**Oppdatert:** 19.09.2026  
 **Ansvarlig:** [Scrum Master]
 
 ---
@@ -223,12 +223,50 @@ Ledes av Scrum Master, holdes i Linear:
 
 ## 🛠️ Verktøy & Integrasjoner
 
-| Verktøy | Formål | Ansvarlig |
-|---------|--------|-----------|
-| **Linear** | Oppgavestyring, dokumentasjon | Scrum Master |
-| **GitHub** | Kode, PR, Issues | DevOps |
-| **D-Bus** | timekpr-kommunikasjon | Fullstack |
-| **Local Server** | Kjørende instans | DevOps |
+| Verktøy | Formål | Ansvarlig | Modus |
+|---------|--------|-----------|-------|
+| **Linear** | Oppgavestyring, dokumentasjon | Scrum Master | Begge |
+| **MCP Linear** | Linear via MCP (native Vibe) | Scrum Master | Vibe Native |
+| **GitHub** | Kode, PR, Issues | DevOps | Begge |
+| **D-Bus** | timekpr-kommunikasjon | Fullstack | Begge |
+| **Local Server** | Kjørende instans | DevOps | Begge |
+
+---
+
+## 🎯 AI Modus
+
+Prosjektet støtter to moduser for fleksibilitet med ulike AI-verktøy:
+
+### Vibe Native Modus
+- **Egnet for:** Vibe CLI
+- **Aktiveres ved:** `/agent <rolle>` kommando **eller** `.vibe/mode = vibe_native`
+- **Verktøy:**
+  - Rollebytte: `/agent <rolle>`
+  - Linear: `linear_list_issues`, `linear_update_issue`, `linear_create_comment`
+  - Filer: `read_file`, `edit`, `grep`, `write_file`
+  - MCP: Full integrasjon med eksterne tjenester
+
+### Generic Modus
+- **Egnet for:** Copilot, Ollama, andre AI-verktøy
+- **Aktiveres ved:** Manuell prefiks `[Rolle]` **eller** `.vibe/mode = generic`
+- **Verktøy:**
+  - Rollebytte: Manuell prefiks (`[Scrum Master]`, `[DevOps]`, etc.)
+  - Linear: API-kall via `curl`
+  - Filer: Les fra `.prompts/` mappen
+
+### Manuell Modus-Kontroll
+```bash
+# Tving Vibe Native Modus
+echo "vibe_native" > .vibe/mode
+
+# Tving Generic Modus
+echo "generic" > .vibe/mode
+
+# Bruk automatisk deteksjon (standard)
+rm .vibe/mode
+```
+
+**Mer info:** Se AGENTS.md for fullstendig dokumentasjon.
 
 ---
 
