@@ -34,6 +34,9 @@ class AppSettings(BaseSettings):
     # Admin password - CRITICAL: Must be set in environment, no defaults
     admin_password_hash: str
     
+    # Admin username - CRITICAL: Must be set in environment, no defaults
+    admin_username: str = "admin"
+    
     # CORS - Secure defaults for production
     # CRITICAL: Never use ["*"] with allow_credentials=True
     cors_origins: list[str] = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")

@@ -31,8 +31,8 @@ async def login(request: Request, login_data: LoginRequest) -> TokenResponse:
             detail="Invalid credentials",
         )
     
-    # Create token
-    token = create_access_token(subject="admin")
+    # Create token with admin username from config (not hardcoded)
+    token = create_access_token(subject=settings.admin_username)
     return TokenResponse(
         access_token=token,
         token_type="bearer",
