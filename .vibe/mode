@@ -1,0 +1,9 @@
+# Vibe Mode Configuration
+# Possible values: "vibe_native" or "generic"
+# - "vibe_native": Use Vibe agents, MCP tools, /agent commands
+# - "generic": Use manual prefixes, .prompts/ files, standard tools
+#
+# Auto-detection: If /agent command is used, "vibe_native" is forced
+# Default: vibe_native (set by setup)
+
+vibe_native

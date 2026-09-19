@@ -35,6 +35,78 @@ python -c "from timekpr_app.api.main import app; print('OK')"
 
 ---
 
+## 🎯 Modus-Valg System
+
+Prosjektet støtter **to moduser** for fleksibilitet:
+
+### 🔧 Modus 1: Vibe Native (Anbefalt for Vibe CLI)
+- **Aktiveres ved:** `/agent <rolle>` kommando **eller** `.vibe/mode` = `vibe_native`
+- **Egnet for:** Vibe CLI
+- **Funksjoner:**
+  - Rollebytte: `/agent devops`
+  - Linear: `linear_list_issues`, `linear_update_issue`
+  - Filer: `read_file`, `edit`, `grep`
+  - Prefiks: Automatisk (hentet fra agent)
+  - Integrasjoner: MCP (Linear, GitHub, etc.)
+
+### 🌐 Modus 2: Generic (For Copilot, Ollama, etc.)
+- **Aktiveres ved:** Manuell prefiks `[Rolle]` **eller** `.vibe/mode` = `generic`
+- **Egnet for:** Copilot, Ollama, lokal CLI, andre AI-verktøy
+- **Funksjoner:**
+  - Rollebytte: Manuell prefiks `[DevOps]`
+  - Linear: `curl` API-kall (se .prompts/ for detaljer)
+  - Filer: Standard verktøy (les fra .prompts/)
+  - Prefiks: Manuell (`[Rolle]`)
+  - Integrasjoner: Ingen MCP
+
+---
+
+### 📋 Modus-Konfigurasjon
+
+#### Automatisk Deteksjon (Standard)
+```bash
+# Hvis du bruker /agent-kommando:
+/agent scrum_master  # → Vibe Native Modus aktiveres
+
+# Hvis du bruker manuell prefiks:
+[Scrum Master] ...    # → Generic Modus aktiveres
+```
+
+#### Manuell Override
+Opprett `.vibe/mode` fil for å tvinge en spesiell modus:
+```bash
+# Tving Vibe Native Modus (uavhengig av kommandoer)
+echo "vibe_native" > .vibe/mode
+
+# Tving Generic Modus (for Copilot/Ollama)
+echo "generic" > .vibe/mode
+
+# Bruk automatisk deteksjon (standard)
+rm .vibe/mode
+```
+
+#### Sjekk aktiv modus
+```bash
+cat .vibe/mode  # Viser: vibe_native | generic
+```
+
+---
+
+### 📊 Modus-Sammenligning
+
+| **Funksjon**               | **Vibe Native**               | **Generic**                     |
+|----------------------------|-------------------------------|--------------------------------|
+| Rollebytte                | `/agent devops`               | `[DevOps] prefix`              |
+| Linear-operasjoner        | `linear_list_issues`          | `curl` API-kall                |
+| Filoperasjoner             | `read_file`, `edit`           | Standard verktøy              |
+| Prefiks                    | Automatisk                    | Manuell `[Rolle]`            |
+| MCP-Integrasjoner          | ✅ Full støtte                | ❌ Ikke tilgjengelig           |
+| Kompatibilitet             | Vibe only                     | Alle AI-verktøy               |
+| Læringskurve               | Medium                        | Lav                          |
+| Effektivitet               | ✅✅✅ Høy                    | ⚠️ Medium                     |
+
+---
+
 ## 🤖 Vibe Agent System (Native Vibe Setup)
 
 Prosjektet bruker **Vibe Agents** for optimal workflow. Se `.vibe/README.md` for full dokumentasjon.
