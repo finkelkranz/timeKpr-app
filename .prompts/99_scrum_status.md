@@ -1,4 +1,4 @@
-# Siste status - 2026-09-19
+# Siste status - 2026-09-20
 
 ---
 
@@ -21,8 +21,8 @@
   - Godkjenninger:
     - [DevOps]: ✅ IMPLEMENTERT
     - [Security]: ✅ **APPROVED**
-    - [QA]: ⏳ AVENTER
-    - [PO]: ⏳ AVENTER AKSEPT
+    - [QA]: ✅ **PASS** (86 tester passed, 9 skipped)
+    - [PO]: ✅ **AKSEPTERT** (DoD oppfylt)
   - GitHub: ✅ Commited & pushed (6c17f87)
 
 - **TOG-20** - [DevOps] Oppdater CORS-konfigurasjon med sikre defaults → **Production**
@@ -35,7 +35,7 @@
     - [DevOps]: ✅ IMPLEMENTERT
     - [Security]: ✅ **APPROVED**
     - [QA]: ✅ **PASS** (81 tester passed, 9 skipped)
-    - [PO]: ⏳ AVENTER AKSEPT
+    - [PO]: ✅ **AKSEPTERT** (DoD oppfylt)
   - GitHub: ✅ Commited & pushed (8855d38)
 
 - **TOG-19** - [Security] Legg til rate-limiting middleware i FastAPI → **Production**
@@ -53,7 +53,7 @@
     - [Security]: ✅ IMPLEMENTERT
     - [QA]: ✅ **PASS** (80 tester passed, 9 skipped)
     - [Security Review]: ✅ **APPROVED**
-    - [PO]: ⏳ AVENTER AKSEPT
+    - [PO]: ✅ **AKSEPTERT** (DoD oppfylt)
 
 - **TOG-18** - [Security] Implementer Pydantic input-validering for alle API-endepunkter → **Production**
   - Endringer:
@@ -110,7 +110,7 @@
 - **Totalt issues**: 32
 - **In Progress**: 0
 - **Backlog**: 23
-- **Production**: 5 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21)
+- **Production**: 6 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21)
 - **Testing**: 0
 - **Ready**: 0
 - **Neste oppgave**: TOG-22 (priority=1, Backlog)
@@ -131,15 +131,16 @@
 ## 📌 Notater
 - Linear API-nøkkel flyttet fra `.env` til `.env.agent` (ikke i git)
 - Admin-brukernavn endret til "torgeir"
-- TOG-17 i Production
+- TOG-17 i Production (DoD oppfylt)
 - TOG-18 i Production (DoD oppfylt: QA PASS + Security APPROVED)
-- TOG-19 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
-- TOG-20 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
-- TOG-21 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
+- TOG-19 i Production (DoD oppfylt: QA PASS + Security APPROVED)
+- TOG-20 i Production (DoD oppfylt: QA PASS + Security APPROVED)
+- TOG-21 i Production (DoD oppfylt: QA PASS + Security APPROVED + PO AKSEPTERT)
 - AGENTS.md oppdatert med rollehåndtering og token-optimalisering
 - .vibe/agents/ opprettet med 6 rolle-agenter
 - Modus-deteksjonssystem implementert (.vibe/mode)
 - Alle endringer commited og pushed (6c17f87)
+- TOG-21 fullført med alle godkjenninger (QA PASS, Security APPROVED, PO AKSEPTERT)
 
 ---
 
