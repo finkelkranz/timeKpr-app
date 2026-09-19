@@ -35,6 +35,62 @@ python -c "from timekpr_app.api.main import app; print('OK')"
 
 ---
 
+## 🤖 Vibe Agent System (Native Vibe Setup)
+
+Prosjektet bruker **Vibe Agents** for optimal workflow. Se `.vibe/README.md` for full dokumentasjon.
+
+### Tilgjengelige Agenter
+
+| Agent | Rolle | Prefiks | Beskrivelse |
+|-------|------|--------|-------------|
+| `scrum_master` | Scrum Master | [Scrum Master] | Team koordinering, Linear management |
+| `devops` | DevOps | [DevOps] | Infrastruktur, CI/CD, miljø |
+| `fullstack` | Fullstack Developer | [Fullstack] | Backend & frontend implementering |
+| `security` | Security Specialist | [Security] | Sikkerhetsanalyse, OWASP |
+| `qa` | QA Engineer | [QA] | Testing, automatisering |
+| `ux` | UX Designer | [UX] | Design, accessibility |
+
+### Bruksmåte
+
+```text
+# Start som Scrum Master
+/agent scrum_master
+
+# Bytt til DevOps
+/agent devops
+
+# Bytt til Security
+/agent security
+
+# Bytt til QA
+/agent qa
+```
+
+### MCP Servere
+
+- **Linear**: Konfigurert for issue management (`linear_*` verktøy)
+
+### Fordeler med Native Setup
+
+✅ **Raskere workflow**: Øyeblikkelig agent-bytting
+✅ **Bedre integrasjon**: Native MCP-verktøy for Linear
+✅ **Kontekstbevaring**: Vibe husker kontekst mellom agenter
+✅ **Umiddelbare oppdateringer**: Hver agent oppdaterer Linear umiddelbart
+
+### Hybrid Setup
+
+Du kan bruke **begge systemer samtidig**:
+- `.prompts/` - For **dokumentasjon** (universell, fungerer med alle AI-verktøy)
+- `.vibe/agents/` - For **Vibe-optimering** (native integrasjoner)
+
+Dette gir full effektivitet i Vibe, mens dokumentasjonen forblir tilgjengelig for Copilot, Ollama, etc.
+
+### Tilbake til Generisk Oppsett
+
+Se `.vibe/README.md` for instruksjoner om hvordan deaktivere Vibe-spesifikk konfigurasjon.
+
+---
+
 ## 🎭 Rollehåndtering (for AI-agent)
 
 - **Én rolle av gangen**: Svar alltid med det aktuelle rolleprefikset ([Scrum Master], [Fullstack], [UX], [DevOps], [Security], [QA])

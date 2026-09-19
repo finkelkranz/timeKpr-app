@@ -1,0 +1,90 @@
+# Vibe Project Configuration for timekpr-app
+# This file overrides ~/.vibe/config.toml for this project only
+
+[session_logging]
+generate_titles = true
+save_dir = ""
+
+[tools.bash]
+permission = "ask"
+allowlist = [
+    "git",
+    "python3",
+    "pytest",
+    "ruff",
+    "uv",
+    "pip",
+    "docker",
+    "docker-compose",
+    "node",
+    "npm",
+    "npx",
+    "yarn",
+    "curl",
+    "wget",
+    "ls",
+    "cd",
+    "pwd",
+    "cat",
+    "grep",
+    "find",
+    "head",
+    "tail",
+    "sort",
+    "uniq",
+    "wc",
+    "echo",
+    "touch",
+    "mkdir",
+    "rm",
+    "mv",
+    "cp",
+    "chmod",
+    "chown",
+    "diff",
+    "patch",
+    "date",
+    "whoami",
+    "uname",
+    "which",
+    "whereis",
+    "file",
+    "stat",
+    "tree",
+    "./scripts/*",
+    "/home/torgeir/prosjekter/timeKpr-app/*",
+]
+denylist = [
+    "gdb",
+    "pdb",
+    "passwd",
+    "nano",
+    "vim",
+    "vi",
+    "emacs",
+    "bash -i",
+    "sh -i",
+    "zsh -i",
+    "screen",
+    "tmux",
+]
+
+[tools.read_file]
+permission = "always"
+allowlist = []
+
+[tools.edit]
+permission = "ask"
+
+[tools.write_file]
+permission = "ask"
+
+[tools.grep]
+permission = "always"
+
+[tools.git_bash]
+permission = "ask"
+
+[tools.task]
+permission = "ask"
+allowlist = ["explore"]
