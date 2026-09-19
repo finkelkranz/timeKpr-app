@@ -3,15 +3,28 @@
 ---
 
 ## 🎯 Aktiv oppgave
-- **Issue**: TOG-21 - [Security] JWT-implementasjonsgjennomgang
+- **Issue**: TOG-22 - [Next issue] (Å sjekke Linear)
 - **State**: Backlog
-- **Tildelt**: [Security]
 - **Prioritet**: 1 (Urgent)
 - **Phase**: Phase 1 - Sikkerhetsfundament (S-2)
 
 ---
 
 ## ✅ Fullførte oppgaver (siste sesjon)
+- **TOG-21** - [Security] JWT-implementasjonsgjennomgang → **Production**
+  - Endringer:
+    - `src/timekpr_app/config.py`: Lagt til `admin_username` setting
+    - `src/timekpr_app/auth.py`: Fjernet hardkoding av 'torgeir' i verify_admin()
+    - `src/timekpr_app/api/auth.py`: Dynamisk token subject (settings.admin_username)
+    - `.env.example`: Lagt til ADMIN_USERNAME
+    - `tests/test_auth.py`: Lagt til 3 nye tester
+  - Godkjenninger:
+    - [DevOps]: ✅ IMPLEMENTERT
+    - [Security]: ✅ **APPROVED**
+    - [QA]: ⏳ AVENTER
+    - [PO]: ⏳ AVENTER AKSEPT
+  - GitHub: ✅ Commited & pushed (6c17f87)
+
 - **TOG-20** - [DevOps] Oppdater CORS-konfigurasjon med sikre defaults → **Production**
   - Endringer:
     - `src/timekpr_app/config.py`: Lagt til 6 nye CORS-instillinger (cors_allow_methods, cors_allow_headers, cors_expose_headers, cors_max_age, cors_allow_credentials)
@@ -73,32 +86,34 @@
 
 ## 📊 GitHub status
 - **Branch**: main
-- **Commit**: 8855d38 (TOG-20: Implement secure CORS defaults)
-- **Sist pushed**: 8855d38
+- **Commit**: 6c17f87 (TOG-21: Improve JWT implementation with configurable admin username)
+- **Sist pushed**: 6c17f87
 - **Endringer commited**:
   - `pyproject.toml`: Lagt til slowapi dependency
   - `src/timekpr_app/api/limiter.py`: Ny rate limiter modul
   - `src/timekpr_app/api/main.py`: Rate limiter middleware + CORS middleware
-  - `src/timekpr_app/api/auth.py`: 5/minutt rate limit
-  - `src/timekpr_app/api/config.py`: 10-20/minutt rate limits + CORS settings
+  - `src/timekpr_app/api/auth.py`: 5/minutt rate limit + dynamisk token subject
+  - `src/timekpr_app/auth.py`: Fjernet hardkoding av 'torgeir' i verify_admin()
+  - `src/timekpr_app/config.py`: 10-20/minutt rate limits + CORS settings + admin_username
   - `src/timekpr_app/api/stats.py`: 10-30/minutt rate limits
   - `src/timekpr_app/api/stats_history.py`: 15-20/minutt rate limits
   - `src/timekpr_app/api/health.py`: 60/minutt rate limit
-  - `.env.example`: Utvidet CORS-dokumentasjon
+  - `.env.example`: Utvidet CORS-dokumentasjon + ADMIN_USERNAME
   - `tests/test_rate_limiting.py`: 5 nye tester
   - `tests/test_config.py`: test_cors_defaults()
-- **Push**: ✅ Synkronisert med origin/main (8855d38)
+  - `tests/test_auth.py`: 3 nye JWT tester
+- **Push**: ✅ Synkronisert med origin/main (6c17f87)
 
 ---
 
 ## 📋 Linear status
 - **Totalt issues**: 32
 - **In Progress**: 0
-- **Backlog**: 24
-- **Production**: 4 (TOG-17, TOG-18, TOG-19, TOG-20)
+- **Backlog**: 23
+- **Production**: 5 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21)
 - **Testing**: 0
 - **Ready**: 0
-- **Neste oppgave**: TOG-21 (priority=1, Backlog)
+- **Neste oppgave**: TOG-22 (priority=1, Backlog)
 
 ---
 
@@ -109,7 +124,7 @@
 | TOG-18 | Pydantic input-validering | 1 | Production | Fullstack |
 | TOG-19 | Rate-limiting middleware | 1 | **Production** | Security |
 | TOG-20 | CORS-konfigurasjon | 1 | **Production** | DevOps |
-| TOG-21 | JWT-implementasjonsgjennomgang | 1 | Backlog | Security |
+| TOG-21 | JWT-implementasjonsgjennomgang | 1 | **Production** | Security |
 
 ---
 
@@ -120,14 +135,16 @@
 - TOG-18 i Production (DoD oppfylt: QA PASS + Security APPROVED)
 - TOG-19 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
 - TOG-20 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
+- TOG-21 i **Production** (DoD oppfylt: QA PASS + Security APPROVED)
 - AGENTS.md oppdatert med rollehåndtering og token-optimalisering
-- Alle endringer commited og pushed (8855d38)
-- TOG-19 og TOG-20 flyttet til Production av [QA] etter fullført testing
+- .vibe/agents/ opprettet med 6 rolle-agenter
+- Modus-deteksjonssystem implementert (.vibe/mode)
+- Alle endringer commited og pushed (6c17f87)
 
 ---
 
 ## 🔄 Neste gang (start prosedyre)
 1. `git pull origin main`
 2. Les denne filen (`.prompts/99_scrum_status.md`)
-3. Sjekk Linear: TOG-21 i Backlog (neste prioritet)
-4. [Security] Starte på TOG-21 (JWT-implementasjonsgjennomgang)
+3. Sjekk Linear: TOG-22 i Backlog (neste prioritet)
+4. [Scrum Master] Starte med nye oppgaver
