@@ -174,6 +174,28 @@ Se `.vibe/README.md` for instruksjoner om hvordan deaktivere Vibe-spesifikk konf
 - **Kontekst**: Les `.prompts/99_scrum_status.md` ved sesjonsstart for å vite hvilken rolle som er aktiv.
 - **Linear-sync**: Oppdater alltid Linear-status og `.prompts/99_scrum_status.md` ved overlevering.
 
+### 📋 Lineær Oppfølgingsprotokoll (Kritisk)
+
+**Alle agenter MÅ følge denne workflow:**
+
+#### Når Scrum Master delegere en oppgave:
+1. `linear_save_issue`: Sett `state="In Progress"`, `assignee="Tøgge T"`
+2. `linear_save_comment`: Legg til "[Scrum Master] Delegert til [Rolle]. Eier: @Tøgge T"
+3. Oppdater `.prompts/99_scrum_status.md` med aktiv oppgave
+
+#### Når en Agent starter på en oppgave:
+1. `linear_save_issue`: Sett `state="In Progress"`, `assignee="Tøgge T"`
+2. `linear_save_comment`: Legg til "[Rolle] Startet arbeid med [Issue-ID]"
+3. Oppdater `.prompts/99_scrum_status.md`
+
+#### Når en Agent fullfører en oppgave:
+1. `linear_save_issue`: Sett `state="Production"` (eller "Testing" om QA kreves)
+2. `linear_save_comment`: Fullstendig rapport med alle endringer, commit-hash, etc.
+3. Oppdater `.prompts/99_scrum_status.md`
+4. Bytt tilbake: "[Rolle] Ferdig med [Issue-ID]. Overlever til [Scrum Master]."
+
+**Merk:** Foreløpig brukes "Tøgge T" som assignee for alle agenter. Når vi har dedikerte agent-brukerkontoer i Linear, oppdateres dette.
+
 ---
 
 ## ⚡ Token/credit-optimalisering

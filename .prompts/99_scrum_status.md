@@ -22,7 +22,7 @@
     - [Fullstack]: ✅ IMPLEMENTERT
     - [QA]: ⏳ pending
     - [PO]: ⏳ pending
-  - GitHub: ⏳ Ikke commited ennå
+  - GitHub: ✅ Commited & pushed (afc6bd6)
 
 - **TOG-21** - [Security] JWT-implementasjonsgjennomgang → **Production**
   - Endringer:
@@ -99,8 +99,8 @@
 
 ## 📊 GitHub status
 - **Branch**: main
-- **Commit**: 6c17f87 (TOG-21: Improve JWT implementation with configurable admin username)
-- **Sist pushed**: 6c17f87
+- **Commit**: afc6bd6 (TOG-22: Add TimekprDataProvider interface for provider abstraction)
+- **Sist pushed**: afc6bd6
 - **Endringer commited**:
   - `pyproject.toml`: Lagt til slowapi dependency
   - `src/timekpr_app/api/limiter.py`: Ny rate limiter modul
@@ -115,18 +115,20 @@
   - `tests/test_rate_limiting.py`: 5 nye tester
   - `tests/test_config.py`: test_cors_defaults()
   - `tests/test_auth.py`: 3 nye JWT tester
-- **Push**: ✅ Synkronisert med origin/main (6c17f87)
+  - `src/timekpr_app/providers/__init__.py`: Ny provider package
+  - `src/timekpr_app/providers/base.py`: TimekprDataProvider Protocol
+- **Push**: ✅ Synkronisert med origin/main (afc6bd6)
 
 ---
 
 ## 📋 Linear status
 - **Totalt issues**: 32
 - **In Progress**: 0
-- **Backlog**: 23
-- **Production**: 6 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21)
+- **Backlog**: 22
+- **Production**: 7 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21, TOG-22)
 - **Testing**: 0
 - **Ready**: 0
-- **Neste oppgave**: TOG-22 (priority=1, Backlog)
+- **Neste oppgave**: TOG-23 (priority=2, Backlog)
 
 ---
 
