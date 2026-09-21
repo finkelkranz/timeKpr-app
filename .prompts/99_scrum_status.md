@@ -3,15 +3,16 @@
 ---
 
 ## 🎯 Aktiv oppgave
-- **Issue**: TOG-22 - [Fullstack] Design TimekprDataProvider interface
-- **State**: In Progress
+- **Issue**: TOG-22 - [QA] Design TimekprDataProvider interface
+- **State**: Testing
 - **Prioritet**: 2 (High)
 - **Phase**: Phase 2 - Arkitekturmodularisering
+- **Neste rolle**: QA → Security → DevOps → Production
 
 ---
 
 ## ✅ Fullførte oppgaver (siste sesjon)
-- **TOG-22** - [Fullstack] Design TimekprDataProvider interface → **Production**
+- **TOG-22** - [Fullstack] Design TimekprDataProvider interface → **Testing** (DoD korrigert)
   - Endringer:
     - `src/timekpr_app/providers/__init__.py`: Ny provider package med factory-funksjoner
     - `src/timekpr_app/providers/base.py`: TimekprDataProvider Protocol + dataklasser
@@ -20,8 +21,11 @@
     - Alle nødvendige metoder definert med type hints og dokumentasjon
   - Godkjenninger:
     - [Fullstack]: ✅ IMPLEMENTERT
-    - [QA]: ⏳ pending
-    - [PO]: ⏳ pending
+    - [QA]: ⏳ pending (DELEGERT)
+    - [Security]: ⏳ pending
+    - [DevOps]: ⏳ pending
+  - **KORREKSJON**: Rullet tilbake fra Production → Testing pga. manglende DoD-godkjenninger
+  - Linear: Oppdatert med DoD-checklist og delegert til QA
   - GitHub: ✅ Commited & pushed (afc6bd6)
 
 - **TOG-21** - [Security] JWT-implementasjonsgjennomgang → **Production**
@@ -99,8 +103,8 @@
 
 ## 📊 GitHub status
 - **Branch**: main
-- **Commit**: afc6bd6 (TOG-22: Add TimekprDataProvider interface for provider abstraction)
-- **Sist pushed**: afc6bd6
+- **Commit**: d78c711 (docs: Update Linear sync protocol for all agent roles)
+- **Sist pushed**: d78c711
 - **Endringer commited**:
   - `pyproject.toml`: Lagt til slowapi dependency
   - `src/timekpr_app/api/limiter.py`: Ny rate limiter modul
@@ -117,7 +121,9 @@
   - `tests/test_auth.py`: 3 nye JWT tester
   - `src/timekpr_app/providers/__init__.py`: Ny provider package
   - `src/timekpr_app/providers/base.py`: TimekprDataProvider Protocol
-- **Push**: ✅ Synkronisert med origin/main (afc6bd6)
+  - `AGENTS.md`: Lagt til Lineær Oppfølgingsprotokoll
+  - `.vibe/agents/*.toml`: Oppdatert alle 6 agent-filer med Linear-sync regler
+- **Push**: ✅ Synkronisert med origin/main (d78c711)
 
 ---
 
@@ -125,10 +131,11 @@
 - **Totalt issues**: 32
 - **In Progress**: 0
 - **Backlog**: 22
-- **Production**: 7 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21, TOG-22)
-- **Testing**: 0
+- **Production**: 6 (TOG-17, TOG-18, TOG-19, TOG-20, TOG-21)
+- **Testing**: 1 (TOG-22)
 - **Ready**: 0
 - **Neste oppgave**: TOG-23 (priority=2, Backlog)
+- **Assignee konvensjon**: Alle oppgaver tildeles "Tøgge T" (midlertidig)
 
 ---
 
@@ -151,16 +158,41 @@
 - TOG-19 i Production (DoD oppfylt: QA PASS + Security APPROVED)
 - TOG-20 i Production (DoD oppfylt: QA PASS + Security APPROVED)
 - TOG-21 i Production (DoD oppfylt: QA PASS + Security APPROVED + PO AKSEPTERT)
-- AGENTS.md oppdatert med rollehåndtering og token-optimalisering
-- .vibe/agents/ opprettet med 6 rolle-agenter
+- TOG-22 korrigert: Flyttet fra Production → Testing (Fullstack hoppet over DoD)
+- AGENTS.md oppdatert med rollehåndtering, token-optimalisering og Lineær Oppfølgingsprotokoll
+- .vibe/agents/ opprettet med 6 rolle-agenter (alle oppdatert med Linear-sync regler)
 - Modus-deteksjonssystem implementert (.vibe/mode)
-- Alle endringer commited og pushed (6c17f87)
+- Alle endringer commited og pushed (d78c711)
 - TOG-21 fullført med alle godkjenninger (QA PASS, Security APPROVED, PO AKSEPTERT)
+- TOG-22 delegert til QA for testing (Fullstack IMPLEMENTERT, venter på QA PASS)
 
 ---
 
 ## 🔄 Neste gang (start prosedyre)
 1. `git pull origin main`
 2. Les denne filen (`.prompts/99_scrum_status.md`)
-3. Sjekk Linear: TOG-22 i Backlog (neste prioritet)
-4. [Scrum Master] Starte med nye oppgaver
+3. Sjekk Linear: TOG-22 i Testing (venter på QA)
+4. [Scrum Master] Verifiser at alle agenter følger DoD-prosessen
+
+## ⚠️ VIKTIG: Tverrfaglig Team Prosess
+
+**Korrekt workflow for alle oppgaver:**
+```
+[Fullstack] Implementer → Testing
+    ↓
+[QA] Tester → Testing (PASS) eller In Progress (FAIL)
+    ↓
+[Security] Sikkerhetsgjennomgang → Testing (OK) eller In Progress (Merknader)
+    ↓
+[DevOps] Miljøverifisering → Testing (OK)
+    ↓
+[Scrum Master/DevOps] Godkjenner DoD → Production
+```
+
+**DoD krever alle 4 godkjenninger:**
+- ✅ Fullstack: IMPLEMENTERT
+- ✅ QA: PASS
+- ✅ Security: OK/APPROVED  
+- ✅ DevOps: OK
+
+**Bare DevOps eller Scrum Master kan flytte til Production!**

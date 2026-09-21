@@ -163,6 +163,54 @@ Se `.vibe/README.md` for instruksjoner om hvordan deaktivere Vibe-spesifikk konf
 
 ---
 
+## 🏗️ Tverrfaglig Team Prosess (DoD - Definition of Done)
+
+**ALLE oppgaver MÅ gjennomføre alle roller før Production:**
+
+### Workflow
+```
+Backlog → Ready → In Progress → Testing → Production
+         (Scrum Master)   (Rolle)     (Rolle)   (DevOps/Scrum Master)
+```
+
+### Rolleansvar
+
+| Rolle | Ansvar | Leveranse | DoD-krav |
+|-------|--------|-----------|----------|
+| **Fullstack** | Implementer kode | Kode, dokumentasjon | ✅ IMPLEMENTERT |
+| **QA** | Test koden | Testrapport | ✅ PASS |
+| **Security** | Sikkerhetsanalyse | Sikkerhetsrapport | ✅ OK/APPROVED |
+| **DevOps** | Miljøverifisering | Driftsrapport | ✅ OK |
+
+### ⚠️ KRITISK REGEL
+**Bare DevOps eller Scrum Master kan flytte en oppgave til Production**
+
+Når en utvikler (Fullstack, UX, etc.) er ferdig:
+1. Sett status til **Testing** (IKKE Production!)
+2. Assignee beholdes (foreløpig Tøgge T)
+3. Legg til kommentar: "[Rolle] Ferdig. Klar for QA."
+
+Scrum Master koordinerer deretter:
+1. Delegere til QA
+2. QA tester → PASS/FAIL
+3. Hvis PASS: Delegere til Security
+4. Security analyserer → OK/Merknader
+5. Hvis OK: Delegere til DevOps
+6. DevOps verifiserer → OK
+7. **DevOps/Scrum Master** flytter til Production
+
+### DoD Checklist (MÅ oppfylles)
+- [ ] Fullstack: Kode implementert og lokalt testet
+- [ ] QA: Automatiske tester skrevet og passer
+- [ ] Security: Sikkerhetsanalyse OK, ingen kritiske funn
+- [ ] DevOps: Miljøkonfigurasjon OK
+
+---
+
+Se `.vibe/README.md` for instruksjoner om hvordan deaktivere Vibe-spesifikk konfigurasjon.
+
+---
+
 ## 🎭 Rollehåndtering (for AI-agent)
 
 - **Én rolle av gangen**: Svar alltid med det aktuelle rolleprefikset ([Scrum Master], [Fullstack], [UX], [DevOps], [Security], [QA])
