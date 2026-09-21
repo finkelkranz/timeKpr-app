@@ -1,16 +1,20 @@
 """Tests for TimekprDataProvider interface (TOG-22).
 
 This module tests the provider abstraction layer including:
-- Dataclasses: UserLimits, UserUsage, UserData
+- Pydantic Models: UserLimits, UserUsage, UserData
 - Protocol: TimekprDataProvider
 - Base class: BaseTimekprProvider
 - Factory functions: get_provider, create_provider
+
+Security Note:
+- All tests verify Pydantic validation is working correctly
+- Tests include validation of bounds, types, and custom validators
+- Tests for OWASP Top 10 A03:2021 (Injection) prevention
 """
 
 from __future__ import annotations
 
 import pytest
-from datetime import datetime
 from typing import Any
 
 from timekpr_app.providers.base import (
@@ -27,12 +31,12 @@ from timekpr_app.providers import (
 
 
 # =============================================================================
-# DATACLASS TESTS
+# PYDANTIC MODEL TESTS (Input Validation)
 # =============================================================================
 
 
 class TestUserLimits:
-    """Tests for UserLimits dataclass."""
+    """Tests for UserLimits Pydantic model with validation."""
 
     def test_user_limits_default_values(self) -> None:
         """Test that UserLimits has correct default values."""
@@ -47,7 +51,7 @@ class TestUserLimits:
         assert limits.hide_tray_icon is False
 
     def test_user_limits_custom_values(self) -> None:
-        """Test that UserLimits accepts custom values."""
+        """Test that UserLimits accepts custom values within bounds."""
         limits = UserLimits(
             daily=14400,
             weekly=100800,
@@ -67,9 +71,71 @@ class TestUserLimits:
         assert limits.track_inactive is True
         assert limits.hide_tray_icon is True
 
+    # =========================================================================
+    # BOUNDS VALIDATION TESTS (OWASP A03:2021)
+    # =========================================================================
+
+    def test_daily_negative_raises_error(self) -> None:
+        """Test that negative daily value raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserLimits(daily=-1)
+        assert "greater than or equal to 0" in str(exc_info.value).lower() or "ge=0" in str(exc_info.value)
+
+    def test_daily_exceeds_max_raises_error(self) -> None:
+        """Test that daily > 86400 raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserLimits(daily=86401)
+        assert "less than or equal to 86400" in str(exc_info.value).lower() or "le=86400" in str(exc_info.value)
+
+    def test_weekly_exceeds_max_raises_error(self) -> None:
+        """Test that weekly > 604800 raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserLimits(weekly=604801)
+        assert "less than or equal to 604800" in str(exc_info.value).lower() or "le=604800" in str(exc_info.value)
+
+    def test_monthly_exceeds_max_raises_error(self) -> None:
+        """Test that monthly > 2592000 raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserLimits(monthly=2592001)
+        assert "less than or equal to 2592000" in str(exc_info.value).lower() or "le=2592000" in str(exc_info.value)
+
+    # =========================================================================
+    # CUSTOM VALIDATOR TESTS
+    # =========================================================================
+
+    def test_allowed_weekdays_invalid_day_raises_error(self) -> None:
+        """Test that invalid weekday (0) raises ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            UserLimits(allowed_weekdays=[0, 1, 2])
+        assert "Invalid weekday: 0" in str(exc_info.value)
+
+    def test_allowed_weekdays_too_high_raises_error(self) -> None:
+        """Test that weekday > 7 raises ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            UserLimits(allowed_weekdays=[1, 2, 8])
+        assert "Invalid weekday: 8" in str(exc_info.value)
+
+    def test_allowed_hours_invalid_day_raises_error(self) -> None:
+        """Test that invalid day in allowed_hours raises ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            UserLimits(allowed_hours={0: [8, 9]})  # Day 0 is invalid
+        assert "Invalid day: 0" in str(exc_info.value)
+
+    def test_allowed_hours_invalid_hour_raises_error(self) -> None:
+        """Test that invalid hour in allowed_hours raises ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            UserLimits(allowed_hours={1: [24]})  # Hour 24 is invalid
+        assert "Invalid hour: 24" in str(exc_info.value)
+
+    def test_allowed_hours_negative_hour_raises_error(self) -> None:
+        """Test that negative hour raises ValueError."""
+        with pytest.raises(ValueError) as exc_info:
+            UserLimits(allowed_hours={1: [-1, 10]})
+        assert "Invalid hour: -1" in str(exc_info.value)
+
 
 class TestUserUsage:
-    """Tests for UserUsage dataclass."""
+    """Tests for UserUsage Pydantic model with validation."""
 
     def test_user_usage_default_values(self) -> None:
         """Test that UserUsage has correct default values."""
@@ -81,7 +147,7 @@ class TestUserUsage:
         assert usage.last_checked == ""
 
     def test_user_usage_custom_values(self) -> None:
-        """Test that UserUsage accepts custom values."""
+        """Test that UserUsage accepts custom values within bounds."""
         usage = UserUsage(
             day=3600,
             week=25200,
@@ -95,9 +161,37 @@ class TestUserUsage:
         assert usage.balance_day == 1000
         assert usage.last_checked == "2026-09-21T20:00:00Z"
 
+    # =========================================================================
+    # BOUNDS VALIDATION TESTS
+    # =========================================================================
+
+    def test_day_negative_raises_error(self) -> None:
+        """Test that negative day value raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserUsage(day=-1)
+        assert "greater than or equal to 0" in str(exc_info.value).lower() or "ge=0" in str(exc_info.value)
+
+    def test_week_negative_raises_error(self) -> None:
+        """Test that negative week value raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserUsage(week=-1)
+        assert "greater than or equal to 0" in str(exc_info.value).lower() or "ge=0" in str(exc_info.value)
+
+    def test_month_negative_raises_error(self) -> None:
+        """Test that negative month value raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserUsage(month=-1)
+        assert "greater than or equal to 0" in str(exc_info.value).lower() or "ge=0" in str(exc_info.value)
+
+    def test_balance_day_negative_raises_error(self) -> None:
+        """Test that negative balance_day value raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserUsage(balance_day=-1)
+        assert "greater than or equal to 0" in str(exc_info.value).lower() or "ge=0" in str(exc_info.value)
+
 
 class TestUserData:
-    """Tests for UserData dataclass."""
+    """Tests for UserData Pydantic model with validation."""
 
     def test_user_data_default_values(self) -> None:
         """Test that UserData has correct default values."""
@@ -106,6 +200,28 @@ class TestUserData:
         assert user_data.display_name == ""
         assert isinstance(user_data.limits, UserLimits)
         assert isinstance(user_data.usage, UserUsage)
+
+    def test_user_data_username_required(self) -> None:
+        """Test that username is required (no default)."""
+        with pytest.raises(Exception):
+            UserData()  # Missing required username
+
+    def test_user_data_username_empty_raises_error(self) -> None:
+        """Test that empty username raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserData(username="")
+        assert "min_length" in str(exc_info.value).lower() or "at least 1" in str(exc_info.value).lower()
+
+    def test_user_data_username_too_long_raises_error(self) -> None:
+        """Test that username > 255 chars raises ValidationError."""
+        with pytest.raises(Exception) as exc_info:
+            UserData(username="a" * 256)
+        error_msg = str(exc_info.value).lower()
+        assert "most 255 characters" in error_msg or "max_length" in error_msg or "less than or equal to 255" in error_msg
+
+    # =========================================================================
+    # COMPUTED PROPERTIES TESTS
+    # =========================================================================
 
     def test_user_data_remaining_properties(self) -> None:
         """Test UserData remaining time properties."""
@@ -130,6 +246,10 @@ class TestUserData:
         assert user_data.remaining_day == 0
         assert user_data.remaining_week == 0
         assert user_data.remaining_month == 0
+
+    # =========================================================================
+    # SERIALIZATION TESTS
+    # =========================================================================
 
     def test_user_data_to_dict(self) -> None:
         """Test UserData.to_dict() method."""

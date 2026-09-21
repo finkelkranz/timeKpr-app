@@ -70,6 +70,8 @@ En oppgave er **ferdig** og kan flyttes til **Production** når:
 ### 💻 Fullstack
 - [ ] Kode følger kodestandard (DRY, SOLID, type hints)
 - [ ] Ingen hardkodede hemmeligheter
+- [ ] **Input-validering implementert (Pydantic modeller for alle inndata)**
+- [ ] **Bounds checking på alle numeriske verdier og arrays**
 - [ ] Lokalt testet uten errors
 - [ ] Feilhåndtering implementert
 - [ ] Dokumentasjon oppdatert

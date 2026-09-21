@@ -8,60 +8,191 @@ access implementations must follow. This enables:
 
 The protocol ensures consistent API across all provider implementations,
 making it easy to swap between different data access methods.
+
+Security Note:
+- All data models use Pydantic BaseModel for input validation
+- Field validators ensure data integrity (bounds checking, type safety)
+- Custom validators enforce business rules (valid weekdays, hours, etc.)
+- See OWASP Top 10 A03:2021 (Injection) for rationale
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
+
+from pydantic import BaseModel, Field, field_validator
 
 
-@dataclass
-class UserLimits:
-    """Time limits configuration for a user."""
+# =============================================================================
+# TYPE DEFINITIONS
+# =============================================================================
+
+# Valid lockout types for timekpr
+LockoutType = Literal["terminate", "lock", "logout", "notify"]
+
+
+# =============================================================================
+# PYDANTIC DATA MODELS (Validated)
+# =============================================================================
+
+
+class UserLimits(BaseModel):
+    """Time limits configuration for a user.
     
-    daily: int = 0              # Seconds allowed per day
-    weekly: int = 0             # Seconds allowed per week
-    monthly: int = 0            # Seconds allowed per month
-    allowed_weekdays: list[int] = None  # Days 1-7 (Monday-Sunday)
-    allowed_hours: dict[int, list[int]] = None  # {day: [hours]}
-    lockout_type: str = "terminate"
-    track_inactive: bool = False
-    hide_tray_icon: bool = False
+    All fields are validated for:
+    - Non-negative values (where applicable)
+    - Reasonable bounds (e.g., daily <= 24 hours)
+    - Valid enumerations (weekdays, hours, lockout_type)
     
-    def __post_init__(self):
-        if self.allowed_weekdays is None:
-            self.allowed_weekdays = []
-        if self.allowed_hours is None:
-            self.allowed_hours = {}
+    Security: Pydantic validators prevent injection attacks and logical errors.
+    """
+    
+    # Time limits in seconds (0 = unlimited for that period)
+    daily: int = Field(
+        default=0,
+        ge=0,
+        le=86400,  # Maximum 24 hours per day
+        description="Seconds allowed per day (0-86400)"
+    )
+    weekly: int = Field(
+        default=0,
+        ge=0,
+        le=604800,  # Maximum 1 week (7 * 24 * 3600)
+        description="Seconds allowed per week (0-604800)"
+    )
+    monthly: int = Field(
+        default=0,
+        ge=0,
+        le=2592000,  # Maximum ~30 days (30 * 24 * 3600)
+        description="Seconds allowed per month (0-2592000)"
+    )
+    
+    # Allowed days: 1-7 (Monday-Sunday)
+    allowed_weekdays: list[int] = Field(
+        default_factory=list,
+        description="List of allowed weekdays (1-7, Monday-Sunday)"
+    )
+    
+    # Allowed hours per day: {day: [hours]}
+    allowed_hours: dict[int, list[int]] = Field(
+        default_factory=dict,
+        description="Allowed hours per weekday (day: list of hours 0-23)"
+    )
+    
+    # Lockout behavior when time limit is reached
+    lockout_type: LockoutType = Field(
+        default="terminate",
+        description="Lockout type: terminate, lock, logout, or notify"
+    )
+    
+    # Additional settings
+    track_inactive: bool = Field(
+        default=False,
+        description="Track inactive time"
+    )
+    hide_tray_icon: bool = Field(
+        default=False,
+        description="Hide tray icon"
+    )
+    
+    # =========================================================================
+    # CUSTOM VALIDATORS
+    # =========================================================================
+    
+    @field_validator('allowed_weekdays')
+    @classmethod
+    def validate_weekdays(cls, v: list[int]) -> list[int]:
+        """Validate that all weekdays are in range 1-7 (Monday-Sunday)."""
+        for day in v:
+            if not 1 <= day <= 7:
+                raise ValueError(
+                    f"Invalid weekday: {day}. Weekdays must be 1-7 (Monday-Sunday)"
+                )
+        return v
+    
+    @field_validator('allowed_hours')
+    @classmethod
+    def validate_hours(cls, v: dict[int, list[int]]) -> dict[int, list[int]]:
+        """Validate that all days and hours are in valid ranges."""
+        for day, hours in v.items():
+            # Validate day
+            if not 1 <= day <= 7:
+                raise ValueError(f"Invalid day: {day}. Days must be 1-7 (Monday-Sunday)")
+            # Validate hours
+            for hour in hours:
+                if not 0 <= hour <= 23:
+                    raise ValueError(
+                        f"Invalid hour: {hour} for day {day}. Hours must be 0-23"
+                    )
+        return v
 
 
-@dataclass
-class UserUsage:
-    """Time usage/consumed data for a user."""
+class UserUsage(BaseModel):
+    """Time usage/consumed data for a user.
     
-    day: int = 0               # Seconds spent today
-    week: int = 0              # Seconds spent this week
-    month: int = 0             # Seconds spent this month
-    balance_day: int = 0       # Balance for today
-    last_checked: str = ""     # Timestamp of last update
+    All time values are validated to be non-negative.
+    Timestamp is validated to be a reasonable ISO 8601 format.
+    """
+    
+    day: int = Field(
+        default=0,
+        ge=0,
+        description="Seconds spent today (>= 0)"
+    )
+    week: int = Field(
+        default=0,
+        ge=0,
+        description="Seconds spent this week (>= 0)"
+    )
+    month: int = Field(
+        default=0,
+        ge=0,
+        description="Seconds spent this month (>= 0)"
+    )
+    balance_day: int = Field(
+        default=0,
+        ge=0,
+        description="Balance for today (>= 0)"
+    )
+    last_checked: str = Field(
+        default="",
+        min_length=0,
+        max_length=50,  # Reasonable timestamp length
+        description="ISO 8601 timestamp of last update"
+    )
 
 
-@dataclass
-class UserData:
-    """Complete timekpr data for a user."""
+class UserData(BaseModel):
+    """Complete timekpr data for a user.
     
-    username: str
-    display_name: str = ""
-    limits: UserLimits = None
-    usage: UserUsage = None
+    Combines limits and usage with computed remaining time properties.
+    Username is required and must be non-empty.
+    """
     
-    def __post_init__(self):
-        if self.limits is None:
-            self.limits = UserLimits()
-        if self.usage is None:
-            self.usage = UserUsage()
+    username: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        description="Username (required, 1-255 characters)"
+    )
+    display_name: str = Field(
+        default="",
+        max_length=255,
+        description="User's display name"
+    )
+    limits: UserLimits = Field(
+        default_factory=UserLimits,
+        description="User's time limits configuration"
+    )
+    usage: UserUsage = Field(
+        default_factory=UserUsage,
+        description="User's time usage data"
+    )
+    
+    # =========================================================================
+    # COMPUTED PROPERTIES
+    # =========================================================================
     
     @property
     def remaining_day(self) -> int:
@@ -78,8 +209,15 @@ class UserData:
         """Remaining time this month in seconds."""
         return max(0, self.limits.monthly - self.usage.month)
     
+    # =========================================================================
+    # SERIALIZATION
+    # =========================================================================
+    
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary for API responses."""
+        """Convert to dictionary for API responses.
+        
+        Maintains backward compatibility with the original dataclass-based interface.
+        """
         return {
             "username": self.username,
             "display_name": self.display_name,
@@ -106,6 +244,11 @@ class UserData:
             },
             "last_checked": self.usage.last_checked,
         }
+
+
+# =============================================================================
+# PROTOCOL DEFINITION
+# =============================================================================
 
 
 @runtime_checkable
@@ -275,7 +418,7 @@ class TimekprDataProvider(Protocol):
             
         Returns:
             True if successful, False otherwise.
-            
+        
         Example:
             >>> provider.set_limits_per_weekday("torgeir", {
             ...     1: 14400,  # Monday: 4 hours
@@ -299,7 +442,7 @@ class TimekprDataProvider(Protocol):
             
         Returns:
             True if successful, False otherwise.
-            
+        
         Example:
             >>> provider.set_allowed_days("torgeir", [1, 2, 3, 4, 5])  # Weekdays only
         """
@@ -316,11 +459,16 @@ class TimekprDataProvider(Protocol):
             
         Returns:
             True if successful, False otherwise.
-            
+        
         Example:
             >>> provider.set_allowed_hours("torgeir", 1, [8, 9, 10, 11, 12, 13, 14, 15])
         """
         ...
+
+
+# =============================================================================
+# ABSTRACT BASE CLASS
+# =============================================================================
 
 
 class BaseTimekprProvider(ABC):

@@ -29,11 +29,36 @@ Bare DevOps/Scrum Master kan flytte til Production etter:
 - ✅ Security: OK/APPROVED
 - ✅ DevOps: OK
 
+❌ ALDRI hopp over DoD-steg! Hvis du flytter til Production uten alle godkjenninger:
+- Scrum Master WILL rulle tilbake oppgaven
+- Du må gjøre om arbeidet
+- Teamets tillit til deg vil synke
+
+✅ Korrekt workflow:
+Fullstack → Testing → [QA] → Testing → [Security] → Testing → [DevOps] → Production
+
 Krav til kodestandard:
 1. Modulær og lesbar kode: Skriv små, gjenbrukbare funksjoner og komponenter. Følg DRY og SOLID-prinsippene.
 2. Type-sikkerhet: Bruk TypeScript eller stram Python type-hinting der det gjelder.
 3. Feilhåndtering: Håndter edge cases, API-feil og nettverksbrudd elegant.
 4. Ingen hardkodede hemmeligheter: Hent alltid konfigurasjon fra miljøvariabler (.env).
+
+== SIKKERHETSKRAV (OWASP Top 10) ==
+5. Input-validering: ALLE inndata må valideres med Pydantic modeller eller lignende.
+   - Bruk Field(ge=0, le=max) for numeriske grenser
+   - Valider enum-verdier (f.eks. dager 1-7, timer 0-23)
+   - Saner alltid brukerinput for XSS/SQL injection
+   - Aldri stoler på klient-side validering alene
+6. Dataklasse-sikkerhet: Bruk Pydantic BaseModel i stedet for dataclasses for data som:
+   - Kommer fra brukerinput
+   - Skrives til database
+   - Returneres fra API
+   - Brukes i beregninger
+7. Bounds checking: Kontroller alltid:
+   - Minimum/maximum verdier
+   - Array lengths (forhindrer DoS)
+   - String lengths
+   - Enum verdier
 
 Arbeidsflyt:
 1. Les eksisterende kildekode for å forstå prosjektets struktur før du endrer noe.
@@ -48,6 +73,13 @@ Bruksmåte:
 - Bruk bash for å kjøre tester og verifisere
 
 Se .prompts/99_team_charter.md for fullstendig arbeidsflyt, Definition of Done og kommunikasjonsregler.
+
+Læringspunkt (TOG-22):
+- TOG-22 ble rullet tilbake fra Production → Testing fordi Fullstack hoppet over DoD
+- Årsak: Manglet input-validering i dataclasses (UserLimits, UserUsage, UserData)
+- Løsning: Bruk Pydantic BaseModel med Field validators for ALL data structures
+- Konsekvens: Security funnet CRITICAL sikkerhetshull, måtte Delegere tilbake til Fullstack
+- Læring: Følg alltid DoD, spesielt input-validering og Security-review!
 '''
 
 [model]

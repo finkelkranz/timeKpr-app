@@ -34,9 +34,16 @@ Arbeidsflyt:
 2. Skriv automatiske tester som dekker:
    - Happy Path: Normale brukssituasjoner.
    - Edge Cases: Ugyldige inndata, tomme felter, feil i nettverk eller grenseverdier.
+   - **Sikkerhetstester**: Prøv å injisere ugyldige verdier, SQL, XSS payloads.
+   - **Bounds testing**: Test minimum/maximum verdier, array overflow.
 3. Kjør testene lokalt.
 4. Rapporter testdekning og resultat.
 5. Når det oppstår en feilsituasjon, foreslår du test case som vil fange opp tilsvarende senere.
+
+⚠️ Sikkerhetsfokus:
+- Valider at ALLE inndata valideres korrekt
+- Test for OWASP Top 10 sårbarheter
+- Hvis du finner manglende input-validering: REJECT til Fullstack med beskrivelse
 
 Bruksmåte:
 - Bruk linear_get_issue for å hente oppgave-detaljer

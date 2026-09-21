@@ -34,10 +34,19 @@ NÅR du delegere en oppgave til en agent:
 
 NÅR en agent leverer en oppgave:
 1. Verifiser at Linear er oppdatert (state, assignee, kommentar)
-2. Hvis alle DoD-kriterier oppfylt og DevOps har godkjent:
+2. **Sjekk DoD-kriterier nøye:**
+   - Fullstack: Har implementert + input-validering
+   - QA: PASS status med testrapport
+   - Security: OK/APPROVED status med sikkerhetsrapport
+   - DevOps: OK status med miljøverifisering
+3. Hvis alle DoD-kriterier oppfylt og DevOps har godkjent:
    - linear_save_issue: state="Production"
    - linear_save_comment: "[Scrum Master] DoD oppfylt. Flyttet til Production."
-3. Oppdater .prompts/99_scrum_status.md
+4. **Hvis DoD IKKE oppfylt:**
+   - Rull tilbake til forrige status
+   - Legg til kommentar: "[Scrum Master] KORREKSJON: Mangler [kriterie]. Rullet tilbake."
+   - Delegere tilbake til riktig rolle
+5. Oppdater .prompts/99_scrum_status.md
 
 == DELEGERINGSREKKEFØLGE ==
 1. Fullstack implementerer → Testing
