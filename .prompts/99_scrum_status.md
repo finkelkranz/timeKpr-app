@@ -1,16 +1,29 @@
-# Siste status - 2026-09-20
+# Siste status - 2026-09-21
 
 ---
 
 ## 🎯 Aktiv oppgave
-- **Issue**: TOG-22 - [Next issue] (Å sjekke Linear)
-- **State**: Backlog
-- **Prioritet**: 1 (Urgent)
-- **Phase**: Phase 1 - Sikkerhetsfundament (S-2)
+- **Issue**: TOG-22 - [Fullstack] Design TimekprDataProvider interface
+- **State**: In Progress
+- **Prioritet**: 2 (High)
+- **Phase**: Phase 2 - Arkitekturmodularisering
 
 ---
 
 ## ✅ Fullførte oppgaver (siste sesjon)
+- **TOG-22** - [Fullstack] Design TimekprDataProvider interface → **Production**
+  - Endringer:
+    - `src/timekpr_app/providers/__init__.py`: Ny provider package med factory-funksjoner
+    - `src/timekpr_app/providers/base.py`: TimekprDataProvider Protocol + dataklasser
+    - `UserData`, `UserLimits`, `UserUsage`: Dataklasser for strukturert data
+    - `get_provider()`, `create_provider()`: Dependency injection factory
+    - Alle nødvendige metoder definert med type hints og dokumentasjon
+  - Godkjenninger:
+    - [Fullstack]: ✅ IMPLEMENTERT
+    - [QA]: ⏳ pending
+    - [PO]: ⏳ pending
+  - GitHub: ⏳ Ikke commited ennå
+
 - **TOG-21** - [Security] JWT-implementasjonsgjennomgang → **Production**
   - Endringer:
     - `src/timekpr_app/config.py`: Lagt til `admin_username` setting
